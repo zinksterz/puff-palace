@@ -1,0 +1,30 @@
+*{
+    /* border: 1px, dashed, red; */
+    margin:0;
+    padding:0;
+    flex-wrap: wrap;
+}
+body{
+    min-height: 100vh;
+    background-image: url(imgs/pp_ss.JPG);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: blanchedalmond;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    justify-content: start;
+    align-items: center;
+}
+nav{
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.1);
+    background-color: white;
+}
+
+nav ul{
+    width: 100%;
+    list-style: none;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
