@@ -6,11 +6,11 @@
 }
 body{
     min-height: 100vh;
-    background-image: url(imgs/pp_ss.JPG);
+    /* background-image: url(imgs/pp_ss.JPG); */
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: blanchedalmond;
+    background-color: rgba(91, 0, 0, 0.996);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     justify-content: start;
     align-items: center;
@@ -72,6 +72,69 @@ nav li:first-child{
     display:none;
 }
 
+.favorites-container{
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+.customer-favorites{
+    display: flex;
+    justify-content: space-between;
+    width: 105%;
+    margin-left: -2.5%;
+    height: 150px;
+    overflow: hidden;
+}
+
+.category{
+    flex:1;
+    height: 100%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    transform: skew(-20deg);
+    position: relative;
+}
+
+.category1 {
+  background-color: #FF0000; /* Red - strong and vibrant */
+}
+
+.category3 {
+  background-color: #1c1c1c; /* White - clean and neutral */
+}
+
+.category4 {
+  background-color: #000000; /* Black - bold and grounding */
+}
+
+.category5 {
+  background-color: #FF0000; /* Light Red - a softer variation for contrast */
+}
+
+.category2 {
+  background-color: #808080; /* Gray - to balance the intensity */
+}
+
+.category span{
+    transform:skew(20deg);
+}
+
+.category:not(:last-child)::after{
+    content: '';
+    position:absolute;
+    top:0;
+    right:-20px;
+    width:40px;
+    height:100%;
+    background-color: inherit;
+    transform:skewX(20deg);
+    z-index:1;
+}
+
 @media(max-width: 800px){
     .hideOnMobile{
         display:none;
@@ -84,5 +147,26 @@ nav li:first-child{
 @media(max-width: 400px){
     .sidebar{
         width:100%;
+    }
+}
+
+@media (max-width: 800px) {
+    .customer-favorites {
+        flex-direction: column;
+        /* Stack the categories on top of each other */
+        height: auto;
+        /* Adjust height for mobile */
+    }
+
+    .category {
+        height: 150px;
+        /* Adjust category height for mobile view */
+        transform: none;
+        /* Remove the skew on small screens for simplicity */
+    }
+
+    .category span {
+        transform: none;
+        /* No counter-skew on small screens */
     }
 }

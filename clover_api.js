@@ -1,7 +1,7 @@
 //Information for Puff Palace test Merchant
 const appSecret = "a13ba782-5191-f192-ff02-15ddebca7a60";
 const appId = "9KEFGPWYMY6EJ";
-//apiToken from test merchants Puff Me settings 
+//apiToken from test merchants Puff Me settings
 const apiToken = "2f0bf1a7-8ef0-d715-76ac-555c98e8cce3";
 //Ecommerce Tokens - set to require captcha
 const publicToken = "42eadf26c5f234924ad70528bda7a051";
@@ -21,7 +21,6 @@ const config = {
 };
 
 // axios.get();
-
 
 const options = {
   method: "GET",
