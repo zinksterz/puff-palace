@@ -222,6 +222,98 @@ nav li:first-child{
     transform: scale(1.05);
 }
 
+.category-container{
+    position:relative;
+    width:100%;
+    margin:20px, 0;
+}
+
+.category-title{
+    font-size: 1.5rem;
+    margin:10px 0;
+    font-weight:bold;
+}
+
+.item-list{
+    display:flex;
+    align-items:center;
+    position:relative;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    padding:10px;
+    gap:10px;
+}
+
+.item-card{
+    min-width: 200px;
+    max-width:200px;
+    background-color:#fff;
+    border-radius: 10px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.1);
+    overflow:hidden;
+    scroll-snap-align:start;
+    text-align: center;
+}
+
+.item-image{
+    width:100%;
+    height:auto;
+    border-bottom:1px solid #ddd;
+}
+
+.item-info{
+    padding:10px;
+}
+
+.item-name{
+    font-size:1rem;
+    font-weight:500;
+    margin: 5px 0;
+}
+
+.item-price{
+    font-size:0.9rem;
+    color:#333;
+}
+
+.scroll-button{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,0.5);
+    color:#fff;
+    border:none;
+    padding:8px;
+    border-radius: 50%;
+    cursor:pointer;
+    display:none;
+    z-index:2;
+}
+
+.scroll-button.left{
+    left:5px;
+}
+
+.scroll-button.right{
+    right:5px;
+}
+
+.category-container:hover .scroll-button{
+    display:block;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.scroll-button svg{
+    width:1.5rem;
+    height:1.5rem;
+    color:#ffffff;
+    transition:color 0.3s ease;
+}
+
+.scroll-button:hover svg{
+    color:#f0f0f0;
+}
+
 @media(max-width: 800px){
     .hideOnMobile{
         display:none;
