@@ -1,0 +1,8 @@
+#Environment Variable
+.env
+
+#Node js
+node_modules
+
+#Logs
+*.log
