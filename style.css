@@ -76,7 +76,7 @@ nav li:first-child{
     width: 100%;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 15px 25px #ce0606;
+    box-shadow: 0 20px 25px #ce0606de;
 }
 
 .favorites-category{
@@ -118,7 +118,7 @@ nav li:first-child{
 }
 
 .category3 {
-  background-color: #a41603; /* Black - bold and grounding */
+  background-color: #ce0606; /* Black - bold and grounding */
 }
 
 .category4 {
@@ -159,10 +159,20 @@ nav li:first-child{
     overflow: hidden;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    background-image: url(imgs/smokey.webp);
+}
+
+.hot-sale-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("imgs/smokey.webp");
     background-size: cover;
     background-position: center;
-    filter: blur(4px);
+    filter: blur(6px);
+    z-index: 1;
 }
 
 .hot-sale-content{
@@ -176,6 +186,7 @@ nav li:first-child{
     background: rgba(0,0,0,0.5);
     border-radius: 10px;
     z-index: 2;
+    max-width: 90%;
 }
 
 .hot-sale-content h2{
@@ -215,31 +226,70 @@ nav li:first-child{
     .menu-button {
         display: block;
     }
-}
-
-@media(max-width: 400px){
-    .sidebar{
-        width:100%;
-    }
-}
-
-@media (max-width: 800px) {
     .customer-favorites {
         flex-direction: column;
         /* Stack the categories on top of each other */
         height: auto;
         /* Adjust height for mobile */
     }
-
     .category {
         height: 150px;
         /* Adjust category height for mobile view */
         transform: none;
         /* Remove the skew on small screens for simplicity */
     }
-
     .category span {
         transform: none;
         /* No counter-skew on small screens */
+    }
+    .hot-sale-container {
+        height: 250px;
+    }
+
+    .hot-sale-content {
+        padding: 15px;
+    }
+
+    .hot-sale-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .hot-sale-content p {
+        font-size: 0.9rem;
+    }
+
+    .hot-sale-content .cta-button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+@media(max-width: 400px){
+    .sidebar{
+        width:100%;
+    }
+     .hot-sale-container {
+        height: auto;
+        min-height: 200px;
+    }
+
+    .hot-sale-content {
+        padding: 10px;
+        top:50%;
+        transform:translate(-50%, -50%);
+        max-width: 100%;
+    }
+
+    .hot-sale-content h2 {
+        font-size: 1.2rem;
+    }
+
+    .hot-sale-content p {
+        font-size: 0.8rem;
+    }
+
+    .hot-sale-content .cta-button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
     }
 }
