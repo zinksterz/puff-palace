@@ -2,14 +2,11 @@ require("dotenv").config();
 const axios = require("axios");
 
 async function getMerchantData() {
-  const merchantId = process.env.MID_PUFF_PALACE;
-  const token = process.env.CLOVER_API_TOKEN;
-  const sandboxUrl = process.env.SANDBOX_URL;
 
   try {
-    const response = await axios.get(`${sandboxUrl}/merchants/${merchantId}`, {
+    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/categories`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
         "Content-Type": "application/json",
       },
     });
@@ -23,4 +20,20 @@ async function getMerchantData() {
   }
 }
 
+async function getItemsByCategory(categoryId){
+  try{
+    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/categories/${categoryId}/items`,{
+      headers:{
+        Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+      }
+    });
+    return response.data.elements;
+  } catch(error){
+    console.error("Error fetching category items:", error);
+    throw error;
+  }
+}
+
+
 module.exports = { getMerchantData };
+module.exports = { getItemsByCategory };
