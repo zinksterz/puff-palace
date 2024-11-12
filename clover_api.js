@@ -35,5 +35,4 @@ async function getItemsByCategory(categoryId){
 }
 
 
-module.exports = { getMerchantData };
-module.exports = { getItemsByCategory };
+module.exports = { getMerchantData, getItemsByCategory };

@@ -77,6 +77,9 @@ nav li:first-child{
     overflow: hidden;
     position: relative;
     box-shadow: 0 8px 16px #ce0606e6;
+    display:flex;
+    gap:10px;
+    justify-content: space-between;
 } 
 
 .favorites-category{
@@ -226,7 +229,9 @@ nav li:first-child{
     position:relative;
     text-align:start;
     width:100%;
-    margin:20px 0;
+    margin:40px 0;
+    padding:0 20px;
+    border-top:1px solid #ddd;
 }
 
 .category-title{
@@ -256,22 +261,29 @@ nav li:first-child{
 .item-list{
     display:flex;
     align-items:center;
-    position:relative;
+    /* position:relative; */
     overflow-x:auto;
     scroll-snap-type:x mandatory;
     padding:10px;
     gap:10px;
+    scrollbar-width: none;
+}
+
+.item-list::-webkit-scrollbar{
+    display:none;
 }
 
 .item-card{
-    min-width: 200px;
+    min-width:200px;
     max-width:200px;
+    flex-shrink:0;
     background-color:#fff;
     border-radius: 10px;
     box-shadow:0 4px 8px rgba(0,0,0,0.1);
     overflow:hidden;
     scroll-snap-align:start;
     text-align: center;
+    margin:5px 0;
 }
 
 .item-image{
@@ -320,8 +332,10 @@ nav li:first-child{
 }
 
 .category-container:hover .scroll-button{
-    display:block;
-    background: rgba(0, 0, 0, 0.8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: rgba(0, 0, 0, 0.7);
 }
 
 .scroll-button svg{
@@ -378,6 +392,26 @@ nav li:first-child{
     .hot-sale-content .cta-button {
         padding: 8px 16px;
         font-size: 0.9rem;
+    }
+}
+
+@media(max-width:600px){
+    .favorites-container{
+        flex-direction: column;
+    }
+    .category{
+        height:auto;
+    }
+    .category-title{
+        font-size:1.5rem;
+        padding:8px 16px;
+        margin:10px 0;
+    }
+    .item-list{
+        gap:5px;
+    }
+    .item-card{
+        min-width:150px;
     }
 }
 

@@ -1,8 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const { getMerchantData } = require("./clover_api");
-const { getItemsByCategory } = require("./clover_api.js");
+const cors = require("cors");
+const { getMerchantData, getItemsByCategory } = require("./clover_api");
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 //gets merchant single store
@@ -20,12 +21,15 @@ app.get("/api/merchant", async (req, res) => {
 
 //get items by category id
 app.get("/api/vapes", async (req, res)=>{
-  const vapeCategoryId = "YJ8B07QX4QPVE";
-  try{
+  console.log("Route /api/vapes accessed");
+  const vapeCategoryId = "RM4BW28ZKH8SA";
+  console.log("Fetching items for category ID: ", vapeCategoryId);
+    try{
     const items = await getItemsByCategory(vapeCategoryId);
     res.json(items);
   }
   catch(error){
+    console.error("Failed to fetch vape items: ", error);
     res.status(500).json({error: "Failed to fetch vape items"});
   }
 });
