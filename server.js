@@ -20,17 +20,31 @@ app.get("/api/merchant", async (req, res) => {
 });
 
 //get items by category id
-app.get("/api/vapes", async (req, res)=>{
-  console.log("Route /api/vapes accessed");
-  const vapeCategoryId = "RM4BW28ZKH8SA";
-  console.log("Fetching items for category ID: ", vapeCategoryId);
-    try{
-    const items = await getItemsByCategory(vapeCategoryId);
+// app.get("/api/vapes", async (req, res)=>{
+//   console.log("Route /api/vapes accessed");
+//   const vapeCategoryId = "RM4BW28ZKH8SA";
+//   console.log("Fetching items for category ID: ", vapeCategoryId);
+//     try{
+//     const items = await getItemsByCategory(vapeCategoryId);
+//     res.json(items);
+//   }
+//   catch(error){
+//     console.error("Failed to fetch vape items: ", error);
+//     res.status(500).json({error: "Failed to fetch vape items"});
+//   }
+// });
+
+app.get("/api/category/:id", async (req, res) =>{
+  console.log(`Route /api/category/${req.params.id} accessed`);
+  const categoryId = req.params.id;
+  console.log(`Fetching items for category ID: ${req.params.id}`);
+  try{
+    const items = await getItemsByCategory(categoryId);
     res.json(items);
   }
   catch(error){
-    console.error("Failed to fetch vape items: ", error);
-    res.status(500).json({error: "Failed to fetch vape items"});
+    console.error("Failed to fetch items in category:", error.message);
+    res.status(500).json({error: "Failed to fetch category items"});
   }
 });
 
