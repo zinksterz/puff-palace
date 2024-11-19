@@ -34,5 +34,23 @@ async function getItemsByCategory(categoryId){
   }
 }
 
+async function fetchProductDetails(productId){
+  try{
+    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items/${productId}`, {
+      headers:{
+        Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+      },
+    });
+    
+    const product = response.data;
+    console.log(product);
+    displayProductModal(product);
+  }
+  catch(error){
+    console.error("Error fetching product details in clover_api.js: ", error);
+    throw error;
+  }
+}
 
-module.exports = { getMerchantData, getItemsByCategory };
+
+module.exports = { getMerchantData, getItemsByCategory, fetchProductDetails };

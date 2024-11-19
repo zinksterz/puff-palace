@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { getMerchantData, getItemsByCategory } = require("./clover_api");
+const { getMerchantData, getItemsByCategory, fetchProductDetails } = require("./clover_api");
 const app = express();
 app.use(cors());
 const PORT = process.env.PORT || 3000;
@@ -19,21 +19,6 @@ app.get("/api/merchant", async (req, res) => {
   }
 });
 
-//get items by category id
-// app.get("/api/vapes", async (req, res)=>{
-//   console.log("Route /api/vapes accessed");
-//   const vapeCategoryId = "RM4BW28ZKH8SA";
-//   console.log("Fetching items for category ID: ", vapeCategoryId);
-//     try{
-//     const items = await getItemsByCategory(vapeCategoryId);
-//     res.json(items);
-//   }
-//   catch(error){
-//     console.error("Failed to fetch vape items: ", error);
-//     res.status(500).json({error: "Failed to fetch vape items"});
-//   }
-// });
-
 app.get("/api/category/:id", async (req, res) =>{
   console.log(`Route /api/category/${req.params.id} accessed`);
   const categoryId = req.params.id;
@@ -45,6 +30,21 @@ app.get("/api/category/:id", async (req, res) =>{
   catch(error){
     console.error("Failed to fetch items in category:", error.message);
     res.status(500).json({error: "Failed to fetch category items"});
+  }
+});
+
+app.get(`/api/product/:id`, async(req, res)=>{
+  console.log(`Route /api/product/${req.params.id} accessed`);
+  const productId = req.params.id;
+  console.log(`Fetching product of id: ${productId}`);
+  try{
+    const product = await fetchProductDetails(productId);
+    res.json(product);
+    console.log("Product fetched: ", product);
+  }
+  catch(error){
+    console.error("Failed to fetch product details: ", error.message);
+    res.status(500).json({error: "Failed to fetch product details"});
   }
 });
 

@@ -361,6 +361,10 @@ nav li:first-child{
     color:#f0f0f0;
 }
 
+.hidden{
+    display:none;
+}
+
 @media(max-width: 800px){
     .hideOnMobile{
         display:none;
