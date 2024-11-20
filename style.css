@@ -365,6 +365,82 @@ nav li:first-child{
     display:none;
 }
 
+.modal{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.7);
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    z-index: 1000;
+    visibility: hidden; /*Perhaps this can be removed or the .hidden can be removed (in this case need to refactor code in items.js) */
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease;
+}
+
+.modal:not(.hidden){
+    visibility: visible;
+    opacity:1;
+}
+
+.modal-content{
+    background:#fff;
+    border-radius: 10px;
+    padding:20px;
+    max-width:500px;
+    width: 90%;
+    text-align:center;
+    position:relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.close-button{
+    position: absolute;
+    top:10px;
+    right:10px;
+    font-size:1.5rem;
+    color:#333;
+    cursor:pointer;
+    transition:color 3s ease;
+}
+
+.close-button:hover{
+    color:#ce0606;
+}
+
+#modal-image{
+    max-width:100%;
+    height:auto;
+    margin:10px 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+#modal-title{
+    font-size: 1.5rem;
+    margin:10px 0;
+    font-weight:bold;
+    color:#333;
+}
+
+#modal-description{
+    font-size: 1rem;
+    color: #555;
+    margin:10px 0;
+}
+
+#modal-price{
+    font-size: 1.2rem;
+    font-weight: bold;
+    color:#ce0606;
+    margin:10px 0;
+}
+
+
+
 @media(max-width: 800px){
     .hideOnMobile{
         display:none;
