@@ -2,6 +2,22 @@ const vapesId = "YJ8B07QX4QPVE";
 const cbdId = "RM4BW28ZKH8SA";
 const papersId = "5PST1Y4VP8DGC";
 
+
+async function waitForServerReady(retries = 10, delay = 500){
+  for(let attempt = 1; attempt <= retries; attempt++){
+    try{
+      const response = await fetch(`http://localhost:3000/api/ping`);
+      if(response.ok) return true;
+    }
+    catch(error){
+      console.log(`Server not ready. Retry ${attempt}...`);
+      await new Promise(res => setTimeout(res,delay));
+    }
+  }
+  throw new Error(`Server did not respond after multiple attempts`);
+}
+
+
 async function displayItems(containerSelector, categoryId) {
   try {
     const response = await fetch(
@@ -91,8 +107,14 @@ function displayProductModal(product) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  displayItems("#vapes-category", vapesId);
-  displayItems("#cbd-category", cbdId);
-  displayItems("#papers-category", papersId);
+document.addEventListener("DOMContentLoaded", async () => {
+  try{
+    await waitForServerReady();
+    displayItems("#vapes-category", vapesId);
+    displayItems("#cbd-category", cbdId);
+    displayItems("#papers-category", papersId);
+  }
+  catch(error){
+    console.error("Failed to intialize the application:", error);
+  }
 });

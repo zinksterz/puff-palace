@@ -10,6 +10,11 @@ const app = express();
 app.use(cors());
 const PORT = process.env.PORT || 3000;
 
+//check for server readiness
+app.get("/api/ping", (req, res)=>{
+  res.status(200).send("pong");
+});
+
 //gets merchant single store
 app.get("/api/merchant", async (req, res) => {
   console.log("Route /api/merchant accessed");
