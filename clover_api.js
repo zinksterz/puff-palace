@@ -43,8 +43,8 @@ async function fetchProductDetails(productId){
     });
     
     const product = response.data;
-    console.log(product);
-    displayProductModal(product);
+    console.log("Product details fetched successfully: ", product);
+    return product;
   }
   catch(error){
     console.error("Error fetching product details in clover_api.js: ", error);
