@@ -62,6 +62,14 @@ async function displayItems(containerSelector, categoryId) {
       itemPrice.classList.add("item-price");
       itemPrice.textContent = `$${(item.price / 100).toFixed(2)}`;
 
+      //Check for discounts
+      if (item.price > item.cost){
+        const saleTagEmoji = document.createElement("div");
+        saleTagEmoji.classList.add("sale-tag-emoji");
+        saleTagEmoji.textContent = "🔥";
+        itemPrice.append(saleTagEmoji);
+      }
+
       //appendElements to item info/ item card
       itemInfo.append(itemName, itemPrice);
       itemCard.append(itemImage, itemInfo);
@@ -97,6 +105,23 @@ function displayProductModal(product) {
   document.getElementById("modal-price").textContent = `$${(
     product.price / 100
   ).toFixed(2)}`;
+
+  const modalContent = document.querySelector(".modal-content");
+  let saleTag = document.querySelector(".sale-tag-modal");
+
+  //Check if product on sale 
+  if(product.price > product.cost){
+    if(!saleTag){
+      saleTag = document.createElement("div");
+      saleTag.classList.add("sale-tag-modal");
+      saleTag.textContent = "SALE";
+      modalContent.prepend(saleTag);
+    }
+    saleTag.style.display = "block";
+  }
+  else if(saleTag){
+    saleTag.style.display = "none";
+  }
 
   //show modal
   modal.classList.remove("hidden");
