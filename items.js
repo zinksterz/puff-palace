@@ -2,21 +2,18 @@ const vapesId = "YJ8B07QX4QPVE";
 const cbdId = "RM4BW28ZKH8SA";
 const papersId = "5PST1Y4VP8DGC";
 
-
-async function waitForServerReady(retries = 10, delay = 500){
-  for(let attempt = 1; attempt <= retries; attempt++){
-    try{
+async function waitForServerReady(retries = 10, delay = 500) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
       const response = await fetch(`http://localhost:3000/api/ping`);
-      if(response.ok) return true;
-    }
-    catch(error){
+      if (response.ok) return true;
+    } catch (error) {
       console.log(`Server not ready. Retry ${attempt}...`);
-      await new Promise(res => setTimeout(res,delay));
+      await new Promise((res) => setTimeout(res, delay));
     }
   }
   throw new Error(`Server did not respond after multiple attempts`);
 }
-
 
 async function displayItems(containerSelector, categoryId) {
   try {
@@ -63,7 +60,7 @@ async function displayItems(containerSelector, categoryId) {
       itemPrice.textContent = `$${(item.price / 100).toFixed(2)}`;
 
       //Check for discounts
-      if (item.price > item.cost){
+      if (item.price > item.cost) {
         const saleTagEmoji = document.createElement("div");
         saleTagEmoji.classList.add("sale-tag-emoji");
         saleTagEmoji.textContent = "🔥";
@@ -82,14 +79,15 @@ async function displayItems(containerSelector, categoryId) {
   }
 }
 
-async function fetchProductDetails(productId){
-  try{
-    const response = await fetch(`http://localhost:3000/api/product/${productId}`);
-    if(!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
+async function fetchProductDetails(productId) {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/api/product/${productId}`
+    );
+    if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
     const product = await response.json();
     displayProductModal(product);
-  }
-  catch(error){
+  } catch (error) {
     console.error("Error fetching product details: ", error);
   }
 }
@@ -109,17 +107,16 @@ function displayProductModal(product) {
   const modalContent = document.querySelector(".modal-content");
   let saleTag = document.querySelector(".sale-tag-modal");
 
-  //Check if product on sale 
-  if(product.price > product.cost){
-    if(!saleTag){
+  //Check if product on sale
+  if (product.price > product.cost) {
+    if (!saleTag) {
       saleTag = document.createElement("div");
       saleTag.classList.add("sale-tag-modal");
       saleTag.textContent = "SALE";
       modalContent.prepend(saleTag);
     }
     saleTag.style.display = "block";
-  }
-  else if(saleTag){
+  } else if (saleTag) {
     saleTag.style.display = "none";
   }
 
@@ -133,13 +130,12 @@ function displayProductModal(product) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  try{
+  try {
     await waitForServerReady();
     displayItems("#vapes-category", vapesId);
     displayItems("#cbd-category", cbdId);
     displayItems("#papers-category", papersId);
-  }
-  catch(error){
+  } catch (error) {
     console.error("Failed to intialize the application:", error);
   }
 });

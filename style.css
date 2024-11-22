@@ -72,6 +72,14 @@ nav li:first-child{
     display:none;
 }
 
+.shop-name {
+  font-family: 'Tangerine', cursive; /* Replace 'Lobster' with your desired font */
+  font-size: 2.2rem;
+  font-weight:bold; 
+  color: #ce0606; 
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 .favorites-container{
     width: 100%;
     overflow: hidden;
