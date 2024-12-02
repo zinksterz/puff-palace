@@ -55,6 +55,21 @@ app.get(`/api/product/:id`, async (req, res) => {
   }
 });
 
+//Logic to discuont or remove discount from an item 
+app.post("/api/update-discount", async (req, res) =>{
+  const {itemId, isDiscounted} = req.body;
+
+  try{
+    //update discount status statefully
+    console.log(`Updating item ${itemId} to isDiscounted: ${isDiscounted}`);
+    res.status(200).json({message: "Item discount updated successfully."});
+  }
+  catch (error) { 
+    console.error("There was an issue updating the items discount status: ", error.message);
+    res.status(500).json({error: "Failed to update discount."});
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
