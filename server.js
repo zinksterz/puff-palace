@@ -1,74 +1,48 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const {
-  getMerchantData,
-  getItemsByCategory,
-  fetchProductDetails,
-} = require("./clover_api");
+const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
+
+//Auth middleware
+const { authMiddleware } = require("./auth");
+
+//Route files
+const adminRoutes = require("./routes/admin");
+const merchantRoutes = require("./routes/merchant");
+const userRoutes = require("./routes/user");
+const utilsRoutes = require("./routes/utils");
+
 const app = express();
-app.use(cors());
+
+
+// ------- Middleware ---------
+
+//Sets cors permissions
+const corsOptions ={
+  origin: ['http://localhost:3000'],//allowed origin
+  methods: ['GET', 'POST'],//Allowed methods
+};
+//Defines rate limits
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100, //Limit each IP to 100 requests per window
+});
+
+app.use(morgan('combined'));
+app.use(cors(corsOptions));
+app.use(authMiddleware);
+app.use(express.json());
+app.use(limiter);
+
 const PORT = process.env.PORT || 3000;
 
-//check for server readiness
-app.get("/api/ping", (req, res)=>{
-  res.status(200).send("pong");
-});
+//Use Route Files
+app.use("/api", adminRoutes)
+app.use("/api", merchantRoutes)
+app.use("/api", userRoutes)
+app.use("/api", utilsRoutes)
 
-//gets merchant single store
-app.get("/api/merchant", async (req, res) => {
-  console.log("Route /api/merchant accessed");
-  try {
-    //fetch data from api
-    const data = await getMerchantData();
-    res.json(data);
-  } catch (error) {
-    console.error("Failed to fetch merchant data:", error.message);
-    res.status(500).json({ error: "Failed to fetch merchant data" });
-  }
-});
-
-app.get("/api/category/:id", async (req, res) => {
-  console.log(`Route /api/category/${req.params.id} accessed`);
-  const categoryId = req.params.id;
-  console.log(`Fetching items for category ID: ${req.params.id}`);
-  try {
-    const items = await getItemsByCategory(categoryId);
-    res.json(items);
-  } catch (error) {
-    console.error("Failed to fetch items in category:", error.message);
-    res.status(500).json({ error: "Failed to fetch category items" });
-  }
-});
-
-app.get(`/api/product/:id`, async (req, res) => {
-  console.log(`Route /api/product/${req.params.id} accessed`);
-  const productId = req.params.id;
-  console.log(`Fetching product of id: ${productId}`);
-  try {
-    const product = await fetchProductDetails(productId);
-    res.json(product);
-    console.log("Product fetched: ", product);
-  } catch (error) {
-    console.error("Failed to fetch product details: ", error.message);
-    res.status(500).json({ error: "Failed to fetch product details" });
-  }
-});
-
-//Logic to discuont or remove discount from an item 
-app.post("/api/update-discount", async (req, res) =>{
-  const {itemId, isDiscounted} = req.body;
-
-  try{
-    //update discount status statefully
-    console.log(`Updating item ${itemId} to isDiscounted: ${isDiscounted}`);
-    res.status(200).json({message: "Item discount updated successfully."});
-  }
-  catch (error) { 
-    console.error("There was an issue updating the items discount status: ", error.message);
-    res.status(500).json({error: "Failed to update discount."});
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
