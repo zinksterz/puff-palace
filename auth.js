@@ -6,7 +6,7 @@ const authConfig = {
   auth0Logout: true,
   secret: process.env.AUTH_SECRET,
   baseURL: "http://localhost:3000",
-  clientId: process.env.AUTH_CLIENT_ID,
+  clientID: process.env.AUTH_CLIENT_ID,
   issuerBaseURL: `https://${process.env.AUTH_DOMAIN}`
 };
 

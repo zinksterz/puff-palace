@@ -1,12 +1,12 @@
 const express = require("express");
+const logger = require("../utils/logger");
+
 const router = express.Router();
 
-
-
-
 //check for server readiness
-app.get("/api/ping", (req, res) => {
-  res.status(200).send("pong");
+router.get("/ping", (req, res) => {
+    logger.info("Ping endpoint accessed");
+    res.status(200).send("pong");
 });
 
 module.exports = router;
