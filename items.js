@@ -60,7 +60,7 @@ async function displayItems(containerSelector, categoryId) {
       itemPrice.textContent = `$${(item.price / 100).toFixed(2)}`;
 
       //Check for discounts
-      if (item.price > item.cost) {
+      if (item.isDiscounted) {
         const saleTagEmoji = document.createElement("div");
         saleTagEmoji.classList.add("sale-tag-emoji");
         saleTagEmoji.textContent = "🔥";
@@ -108,7 +108,7 @@ function displayProductModal(product) {
   let saleTag = document.querySelector(".sale-tag-modal");
 
   //Check if product on sale
-  if (product.price > product.cost) {
+  if (product.isDiscounted) {
     if (!saleTag) {
       saleTag = document.createElement("div");
       saleTag.classList.add("sale-tag-modal");

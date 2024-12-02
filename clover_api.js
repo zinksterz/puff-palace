@@ -27,7 +27,12 @@ async function getItemsByCategory(categoryId){
         Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
       }
     });
-    return response.data.elements;
+    const items = response.data.elements.map((item) =>({
+      ...item,
+      isDiscounted: false, //defaulted to no discount >>> Updated in admin panel
+    }));
+    return items;
+    
   } catch(error){
     console.error("Error fetching category items:", error);
     throw error;
