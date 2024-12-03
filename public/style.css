@@ -476,7 +476,7 @@ nav li:first-child{
 }
 
 @media(max-width: 800px){
-    .hideOnMobile{
+  nav  .hideOnMobile{
         display:none;
     }
     .menu-button {

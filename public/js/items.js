@@ -129,6 +129,28 @@ function displayProductModal(product) {
   });
 }
 
+
+//Checks for admin priviledges against array of secure admin emails
+async function adminIsUser(){
+  console.log("Checking admin status...");
+  try{
+    const response = await fetch("/api/is-admin");
+    const result = await response.json();
+
+    if (response.ok){
+      console.log("Admin check result: ", result);
+      return result.isAdmin;
+    } else {
+      console.warn(result.message || "Access Denied!");
+      return false;
+    }
+  } catch(error){
+    console.error("Error checking admin status: ", error);
+    return false;
+  }
+}
+
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     await waitForServerReady();

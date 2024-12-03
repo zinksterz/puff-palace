@@ -19,7 +19,8 @@
             <li><a href="#">Contact</a></li>
             <li><a href="#">About</a></li>
             <li><a href="#">Search</a></li>
-            <li><a href="#">Login</a></li>
+            <li><a href="/api/auth/login">Login</a></li>
+            <li id="sidebar-admin-link" style="display:none;"><a href="/admin.html">Admin Panel</a></li>
         </ul>
         <ul>
             <li><a href="#" class="shop-name">Puff Palace</a></li>
@@ -27,7 +28,8 @@
             <li class="hideOnMobile"><a href="#">Contact</a></li>
             <li class="hideOnMobile"><a href="#">About</a></li>
             <li class="hideOnMobile"><a href="#">Search</a></li>
-            <li class="hideOnMobile"><a href="#">Login</a></li>
+            <li class="hideOnMobile"><a href="/api/auth/login">Login</a></li>
+            <li class="hideOnMobile" id="navbar-admin-link" style="display:none;"><a href="/admin.html" >Admin Panel</a></li>
             <li class="menu-button" onclick=showSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="#e8eaed"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg></a></li>
         </ul>
     </nav>
@@ -120,5 +122,35 @@
     <script src="js/sidebar.js" defer></script>
     <script src="js/category_lists.js" defer></script>
     <script src="js/items.js" defer></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const navbarAdminLink = document.getElementById('navbar-admin-link');
+        const sidebarAdminLink = document.getElementById('sidebar-admin-link');
+
+        try {
+            const isAdmin = await adminIsUser(); // Assume this function checks admin status.
+            
+            if (isAdmin) {
+                if (window.innerWidth < 800) {
+                    // Show sidebar link for mobile view
+                    sidebarAdminLink.style.display = 'block';
+                    navbarAdminLink.style.display = 'none';
+                } else {
+                    // Show navbar link for larger screens
+                    navbarAdminLink.style.display = 'block';
+                    sidebarAdminLink.style.display = 'none';
+                }
+            } else {
+                // Hide both links if not an admin
+                navbarAdminLink.style.display = 'none';
+                sidebarAdminLink.style.display = 'none';
+            }
+        } catch (error) {
+            console.error("Error updating admin links: ", error);
+            navbarAdminLink.style.display = 'none';
+            sidebarAdminLink.style.display = 'none';
+        }
+    });
+    </script>
 </body>
 </html>

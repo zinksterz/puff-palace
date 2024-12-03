@@ -1,0 +1,11 @@
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+    const isAdmin = await adminIsUser();
+    if (!isAdmin) {
+        window.location.href = "/"; // Redirect to home if not admin
+    }
+});
+</script>

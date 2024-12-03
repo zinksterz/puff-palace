@@ -22,6 +22,21 @@ router.get("/admin", (req, res) => {
   }
 });
 
+router.get("/is-admin", (req, res) =>{
+  if(!req.oidc.isAuthenticated()){
+    return res.status(401).json({isAdmin: false, message:"Not authenticated"});
+  }
+  const userEmail = req.oidc.user.email;
+  const adminEmails = process.env.ADMIN_EMAILS;
+  const isAdmin = adminEmails.includes(userEmail);
+
+  if(isAdmin){
+    res.json({isAdmin:true});
+  } else {
+    res.status(403).json({ isAdmin: false, message: "Access Denied"});
+  }
+});
+
 //Logic to discuont or remove discount from an item
 router.post("/update-discount", async (req, res) => {
   const { itemId, isDiscounted } = req.body;

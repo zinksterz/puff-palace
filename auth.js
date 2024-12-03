@@ -10,6 +10,7 @@ const authConfig = {
   issuerBaseURL: `https://${process.env.AUTH_DOMAIN}`,
 };
 
+
 const authMiddleware = auth(authConfig);
 
 module.exports = authMiddleware;
