@@ -9,7 +9,7 @@ router.get("/admin", (req, res) => {
   if (req.oidc.isAuthenticated()) {
     const userRole = req.oidc.user.role || "unknown"; // Handle missing role
     const userName = req.oidc.user.name || "Unknown User"; // Handle missing name
-
+    console.log("User role: " + userRole);
     if (userRole === "admin") {
       logger.info(`${userName} logged in as an admin.`);
       return res.send(`Welcome, Admin! ${userName}`);

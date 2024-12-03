@@ -4,6 +4,7 @@ const logger = require("../utils/logger");
 
 //auth0 display user profile
 router.get("/profile", (req, res) => {
+  console.log("We are here user.js line 7");
   if (req.oidc.isAuthenticated()) {
     const userName = req.oidc.user.name || "Unknown User";
     logger.info(`${userName} logged in.`);
