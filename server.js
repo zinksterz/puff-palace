@@ -4,7 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const logger = require("./utils/logger");
 const rateLimit = require("express-rate-limit");
-
+const path = require("path");
 //Auth middleware
 const authMiddleware = require("./auth");
 
@@ -13,6 +13,7 @@ const adminRoutes = require("./routes/admin");
 const merchantRoutes = require("./routes/merchant");
 const userRoutes = require("./routes/user");
 const utilsRoutes = require("./routes/utils");
+const authRoutes = require("./routes/auth");
 
 const app = express();
 
@@ -28,7 +29,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100, //Limit each IP to 100 requests per window
 });
-
+app.use(express.static(path.join(__dirname, "public")));
 app.use(
   //options [combined || tiny || short || dev]
   morgan("dev", {
@@ -44,11 +45,17 @@ app.use(limiter);
 
 const PORT = process.env.PORT || 3000;
 
+//Landing page
+app.get("/", (req, res) =>{
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 //Use Route Files
 app.use("/api", adminRoutes);
 app.use("/api", merchantRoutes);
 app.use("/api", userRoutes);
 app.use("/api", utilsRoutes);
+app.use("/api/auth", authRoutes);
 
 //Winston - Logger logic
 logger.info("Server is starting...");

@@ -1,10 +1,11 @@
 require("dotenv").config();
+const logger = require("./utils/logger");
 const axios = require("axios");
 
 async function getMerchantData() {
 
   try {
-    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/categories`, {
+    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}`, {
       headers: {
         Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
         "Content-Type": "application/json",
@@ -12,10 +13,26 @@ async function getMerchantData() {
     });
     return response.data;
   } catch (error) {
-    console.error(
+    logger.error(
       "Error Details:",
       error.response ? error.response.data : error.message
     );
+    throw error;
+  }
+}
+
+async function getAllCategories() {
+
+  try{
+    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/categories`,{
+      headers: {
+        Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error){
+    logger.error(`Error Details: `, error.response ? error.response.data : error.message);
     throw error;
   }
 }
@@ -34,7 +51,7 @@ async function getItemsByCategory(categoryId){
     return items;
     
   } catch(error){
-    console.error("Error fetching category items:", error);
+    logger.error("Error fetching category items:", error);
     throw error;
   }
 }
@@ -48,14 +65,14 @@ async function fetchProductDetails(productId){
     });
     
     const product = response.data;
-    console.log("Product details fetched successfully: ", product);
+    logger.info("Product details fetched successfully: ", product);
     return product;
   }
   catch(error){
-    console.error("Error fetching product details in clover_api.js: ", error);
+    logger.error("Error fetching product details in clover_api.js: ", error);
     throw error;
   }
 }
 
 
-module.exports = { getMerchantData, getItemsByCategory, fetchProductDetails };
+module.exports = { getMerchantData, getAllCategories, getItemsByCategory, fetchProductDetails };
