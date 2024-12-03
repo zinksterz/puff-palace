@@ -7,21 +7,18 @@ require("dotenv").config();
 //auth0 secure admin route
 router.get("/admin", (req, res) => {
   if (req.oidc.isAuthenticated()) {
-    const userRole = req.oidc.user.role || "unknown"; // Handle missing role
+    logger.info(`${req.oidc.user.name} has accessed /admin.`);
     const userName = req.oidc.user.name || "Unknown User"; // Handle missing name
-    console.log("User role: " + userRole);
-    if (userRole === "admin") {
+    if (req.oidc.user.email === "z.j.inkster@gmail.com") { // Update for client admin control
       logger.info(`${userName} logged in as an admin.`);
       return res.send(`Welcome, Admin! ${userName}`);
     } else {
-      logger.warn(
-        `${userName} attempted to access admin but has an invalid role: ${userRole}`
-      );
+      logger.warn(`${userName} attempted to access admin but has an invalid email: ${req.oidc.user.email}`);
       return res.status(403).send("Access Denied: Insufficient permissions.");
     }
   } else {
     logger.warn("Unauthenticated access attempt to admin route.");
-    return res.status(401).redirect("/login");
+    return res.status(401).redirect("/api/auth/login");
   }
 });
 
