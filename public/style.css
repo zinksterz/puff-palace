@@ -475,6 +475,73 @@ nav li:first-child{
     vertical-align:middle;
 }
 
+.admin-nav {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem;
+}
+
+.admin-nav ul {
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.admin-nav ul li a.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.admin-container {
+    padding: 2rem;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: #eee;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    width: 30%;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.admin-table th, .admin-table td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #f4f4f4;
+}
+
+.cta-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 @media(max-width: 800px){
   nav  .hideOnMobile{
         display:none;

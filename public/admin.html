@@ -1,11 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Puff Palace</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="./imgs/pp_ss.JPG">
+</head>
+<body>
+    <nav class="admin-nav">
+        <ul>
+            <li><a href="#" class="active">Dashboard</a></li>
+            <li><a href="#">Products</a></li>
+            <li><a href="#">Discounts</a></li>
+            <li><a href="/api/auth/logout">Logout</a></li>
+        </ul>
+    </nav>
 
+    <div class="admin-container">
+        <!-- Dashboard Section -->
+        <section id="dashboard">
+            <h1>Admin Dashboard</h1>
+            <div class="stats">
+                <div class="stat-card">
+                    <h2>Total Products</h2>
+                    <p id="total-products">0</p>
+                </div>
+                <div class="stat-card">
+                    <h2>Active Discounts</h2>
+                    <p id="active-discounts">0</p>
+                </div>
+                <div class="stat-card">
+                    <h2>Revenue</h2>
+                    <p id="revenue">$0.00</p>
+                </div>
+            </div>
+        </section>
 
+        <!-- Product Management Section -->
+        <section id="products">
+            <h1>Product Management</h1>
+            <button class="cta-button">Add New Product</button>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </section>
 
-<script>
-    document.addEventListener("DOMContentLoaded", async () => {
-    const isAdmin = await adminIsUser();
-    if (!isAdmin) {
-        window.location.href = "/"; // Redirect to home if not admin
-    }
-});
-</script>
+        <!-- Discounts Section -->
+        <section id="discounts">
+            <h1>Manage Discounts</h1>
+            <button class="cta-button">Apply Discount</button>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Product/Category</th>
+                        <th>Discount</th>
+                        <th>Valid Until</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic rows will be inserted here -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <script src="js/items.js" defer></script>
+    <script src="js/admin.js"></script>
+    <script src="js/panel.js"></script>
+</body>
+</html>
+

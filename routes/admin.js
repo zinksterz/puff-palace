@@ -11,7 +11,7 @@ router.get("/admin", (req, res) => {
     const userName = req.oidc.user.name || "Unknown User"; // Handle missing name
     if (req.oidc.user.email === "z.j.inkster@gmail.com") { // Update for client admin control
       logger.info(`${userName} logged in as an admin.`);
-      return res.send(`Welcome, Admin! ${userName}`);
+      res.redirect("/");
     } else {
       logger.warn(`${userName} attempted to access admin but has an invalid email: ${req.oidc.user.email}`);
       return res.status(403).send("Access Denied: Insufficient permissions.");
