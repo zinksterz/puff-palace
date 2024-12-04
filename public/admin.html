@@ -40,7 +40,7 @@
         <!-- Product Management Section -->
         <section id="products">
             <h1>Product Management</h1>
-            <button class="cta-button">Add New Product</button>
+            <button class="cta-button" id="add-product-btn">Add New Product</button>
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -50,7 +50,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="product-table-body">
                     <!-- Dynamic rows will be inserted here -->
                 </tbody>
             </table>
@@ -59,7 +59,7 @@
         <!-- Discounts Section -->
         <section id="discounts">
             <h1>Manage Discounts</h1>
-            <button class="cta-button">Apply Discount</button>
+            <button class="cta-button" id="apply-discount-btn">Apply Discount</button>
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -69,15 +69,15 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="discount-table-body">
                     <!-- Dynamic rows will be inserted here -->
                 </tbody>
             </table>
         </section>
     </div>
     <script src="js/items.js" defer></script>
-    <script src="js/admin.js"></script>
-    <script src="js/panel.js"></script>
+    <script src="js/admin.js" defer></script>
+    <script src="js/panel.js" defer></script>
 </body>
 </html>
 
