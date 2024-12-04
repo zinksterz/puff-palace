@@ -34,10 +34,7 @@ async function fetchCategories() {
 
 async function fetchItems(categoryId = null) {
   try {
-    const endpoint = categoryId
-      ? `/api/category/${categoryId}/items`
-      : `/api/items`;
-    const response = await fetch(endpoint);
+    const response = await fetch(`/api/category/${categoryId}`);
     if (!response.ok) throw new Error("Failed to fetch items");
     return await response.json();
   } catch (error) {
@@ -48,11 +45,14 @@ async function fetchItems(categoryId = null) {
 async function fetchDiscounts() {
   try {
     const response = await fetch("/api/discounts");
-    if (!response.ok) throw new Error("Failed to fetch discounts");
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching discounts: ", error);
+    if (!response.ok){
+        throw new Error(`Failed to fetch discounts: ${response.statusText}`);
   }
+    const {discounts} = await response.json();
+    populateDiscountTable(discounts);
+    } catch(error){
+        console.error("Error fetching discounts: ",error);
+    }
 }
 
 async function renderCategories(categories) {

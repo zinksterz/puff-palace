@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
-const { getMerchantData, getItemsByCategory, fetchProductDetails } = require("../clover_api");
+const { getMerchantData, getItemsByCategory, fetchProductDetails, getAllCategories } = require("../clover_api");
 
 //gets merchant single store
 router.get("/merchant", async (req, res) => {
@@ -14,6 +14,18 @@ router.get("/merchant", async (req, res) => {
   } catch (error) {
     console.error("Failed to fetch merchant data:", error.message);
     res.status(500).json({ error: "Failed to fetch merchant data" });
+  }
+});
+
+//Get all categories
+router.get("/categories", async (req, res) => {
+  try{
+    const data = await getAllCategories();
+    logger.info(`Fetched list of categories from merchant...`);
+    res.json(data);
+  } catch(error){
+    logger.error("Failed to fetch list of categories: ", error);
+    res.status(500).json({error: "Failed to fetch categories..."});
   }
 });
 

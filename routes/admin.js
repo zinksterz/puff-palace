@@ -3,6 +3,11 @@ const router = express.Router();
 const logger = require("../utils/logger");
 require("dotenv").config();
 
+//temporary in-memory discount storage to be replaced by database
+const discounts = [
+  { id: 1, product: "CBD Oil", discount: "20%", validUntil: "2024-12-31" },
+  { id: 2, product: "Vape Pen", discount: "10%", validUntil: "2024-12-15" },
+];
 
 //auth0 secure admin route
 router.get("/admin", (req, res) => {
@@ -22,6 +27,7 @@ router.get("/admin", (req, res) => {
   }
 });
 
+//checks to ensure account accessing is indeed admin
 router.get("/is-admin", (req, res) =>{
   if(!req.oidc.isAuthenticated()){
     return res.status(401).json({isAdmin: false, message:"Not authenticated"});
@@ -53,5 +59,30 @@ router.post("/update-discount", async (req, res) => {
     res.status(500).json({ error: "Failed to update discount." });
   }
 });
+
+//Fetching a list of Discounted items
+router.get("/discounts", (req, res) => {
+  try {
+    res.json({ success: true, discounts});
+  } catch (error) {
+    console.error("Error fetching discounts: ", error);
+    res.status(500).json({success: false, message: "Failed to fetch discounts..."});
+  }
+});
+
+
+//adding new items
+
+
+
+//updating item details
+
+
+
+//removing item
+
+
+
+//views for admin specific stats (revenue/active discounts/etc)
 
 module.exports = router;
