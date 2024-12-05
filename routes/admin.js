@@ -60,6 +60,32 @@ router.post("/update-discount", async (req, res) => {
   }
 });
 
+
+//Logic for adding a discount
+router.post("/discounts", (req, res) => {
+  try{
+    const { product, discount, validUntil } = req.body;
+    
+    //validation
+    if(!product || !discount || !validUntil) {
+      return res.status(400).json({success: false, message: "Missing one or more required fields..."});
+    }
+    const newDiscount = {
+      id: discounts.length + 1,
+      product,
+      discount,
+      validUntil,
+    };
+
+    discounts.push(newDiscount);
+    res.json({success: true, discount: newDiscount});
+  } catch(error){
+    console.error("Error creating discount: ", error);
+    res.status(500).json({success: false, message:"Failed to create new discount..."});
+  }
+});
+
+
 //Fetching a list of Discounted items
 router.get("/discounts", (req, res) => {
   try {

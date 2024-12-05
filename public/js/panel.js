@@ -4,11 +4,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const categories = await fetchCategories();
     if (categories) renderCategories(categories);
 
-    const products = await fetchItems();
-    if (products) populateProductTable(products);
+    //fetch and display all items
+    const allItems = await fetchItems();
+    if (allItems) populateProductTable(allItems);
 
+    //fetch and display discounts
     const discounts = await fetchDiscounts();
     if (discounts) populateDiscountTable(discounts);
+
 
     const discountForm = document.getElementById("discount-form");
     if (discountForm) {
@@ -32,9 +35,10 @@ async function fetchCategories() {
   }
 }
 
-async function fetchItems(categoryId = null) {
+async function fetchItems(categoryId = "") {
   try {
-    const response = await fetch(`/api/category/${categoryId}`);
+    const endpoint = categoryId ? `/api/category/${categoryId}` : `/api/items`;
+    const response = await fetch(endpoint);
     if (!response.ok) throw new Error("Failed to fetch items");
     return await response.json();
   } catch (error) {
@@ -131,16 +135,23 @@ function populateDiscountTable(discounts) {
   });
 }
 
-async function applyDiscount(itemId, discountPercentage) {
-  try {
-    const response = await fetch(`/api/items/${itemId}/discount`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ discount: discountPercentage }),
-    });
-    if (!response.ok) throw new Error("Failed to apply discount!");
-    console.log(`Discount applied to item ${itemId}`);
-  } catch (error) {
-    console.error("Error applying discount:", error);
-  }
+async function addDiscount(product, discount, validUntil){
+    try{
+        const response = await fetch("/api/discounts", {
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({product, discount, validUntil}),
+        });
+
+        if(!response.ok) {
+            throw new Error(`Failed to add discount: ${response.statusText}`);
+        }
+        const {discount: newDiscount} = await response.json();
+        console.log("Discount added successfully: ", newDiscount);
+        fetchDiscounts();//refreshes discount table after adding the discount
+    } catch(error){
+        console.error("Error adding discount: ", error);
+    }
 }

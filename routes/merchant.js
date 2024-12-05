@@ -1,7 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
-const { getMerchantData, getItemsByCategory, fetchProductDetails, getAllCategories } = require("../clover_api");
+const {
+  getMerchantData,
+  getItemsByCategory,
+  fetchProductDetails,
+  getAllCategories,
+  getItems,
+} = require("../clover_api");
 
 //gets merchant single store
 router.get("/merchant", async (req, res) => {
@@ -19,13 +25,13 @@ router.get("/merchant", async (req, res) => {
 
 //Get all categories
 router.get("/categories", async (req, res) => {
-  try{
+  try {
     const data = await getAllCategories();
     logger.info(`Fetched list of categories from merchant...`);
     res.json(data);
-  } catch(error){
+  } catch (error) {
     logger.error("Failed to fetch list of categories: ", error);
-    res.status(500).json({error: "Failed to fetch categories..."});
+    res.status(500).json({ error: "Failed to fetch categories..." });
   }
 });
 
@@ -42,6 +48,18 @@ router.get("/category/:id", async (req, res) => {
   }
 });
 
+//Get all items from merchant
+router.get("/items", async (req, res) => {
+  logger.info("/items endpoint accessed");
+  try {
+    const items = await getItems();
+    res.json(items);
+  } catch (error) {
+    console.error("error fetching all items: ", error.message);
+    res.status(500).json({ error: "Failed to fetch items" });
+  }
+});
+
 //Get item by product id
 router.get(`/product/:id`, async (req, res) => {
   logger.info("Product endpoint accessed");
@@ -55,6 +73,5 @@ router.get(`/product/:id`, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch product details" });
   }
 });
-
 
 module.exports = router;
