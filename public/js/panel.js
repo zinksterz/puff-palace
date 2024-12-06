@@ -1,24 +1,15 @@
-//Maps categories to items locally
-async function fetchCategoriesAndMap() {
-  try {
-    const response = await fetch("/api/categories");
-    if (!response.ok) throw new Error("Failed to fetch categories...");
-    const { categories, categoriesMap } = await response.json(); // Ensure backend sends both
-    console.log("Categories and mapping fetched:", categories, categoriesMap);
-    return { categories, categoriesMap };
-  } catch (error) {
-    console.error("Error fetching categories: ", error);
-  }
-}
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const { categories ,categoriesMap} = await fetchCategoriesAndMap();
-
-    //fetch and display categories
-    if(categories) renderCategories(categories);
-
+    const categories = await fetchCategories();
+    console.log(categories);
+    if (Array.isArray(categories) && categories.length > 0) {
+      renderCategories(categories);
+    } else {
+      console.warn("No categories to render.");
+    }
+    
     //fetch and display all items
-    const allItems = await fetchItems("", categoriesMap);
+    const allItems = await fetchItems();
     if (allItems) populateProductTable(allItems);
 
     //fetch and display discounts
@@ -49,22 +40,18 @@ async function fetchCategories() {
 }
 
 
-async function fetchItems(categoryId = "", categoriesMap) {
-  try {
+async function fetchItems(categoryId = "") {
+  try{
     const endpoint = categoryId ? `/api/category/${categoryId}` : `/api/items`;
     const response = await fetch(endpoint);
-    if (!response.ok) throw new Error("Failed to fetch items");
+    if(!response.ok) throw new Error("Failed to fetch items");
     const items = await response.json();
-    if (!items || items.length === 0) {
-      console.warn("No items found.");
+    if(!items || items.length === 0){
+      console.warn("No items were found");
       return [];
     }
-    //map category names
-    return items.map((item) => ({
-      ...item,
-      categoryName: categoriesMap[item.categoryId] || "Uncategorized",
-    }));
-  } catch (error) {
+    return items;
+  } catch(error){
     console.error("Error fetching items: ", error);
     return [];
   }
@@ -88,6 +75,7 @@ async function fetchDiscounts() {
 async function renderCategories(categories) {
   const categoryContainer = document.getElementById("category-container");
   if (!categoryContainer) return;
+  console.log("renderCategories is recieving the following as a parameter: ",categories);
   categoryContainer.innerHTML = "";
   categories.forEach((category) => {
     const categoryCard = document.createElement("div");
@@ -120,7 +108,7 @@ function populateProductTable(products) {
     const row = document.createElement("tr"); //eventually will change product.categoryId from id to category.name likely using the mapping function
     row.innerHTML = `
             <td>${product.name}</td>
-            <td>${product.categoryId || "Uncategorized"}</td> 
+            <td>${product.categoryName || "Uncategorized"}</td> 
             <td>$${(product.price / 100).toFixed(2)}</td>
             <td>
                 <button onclick="editProduct('${product.id}')">Edit</button>

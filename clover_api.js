@@ -76,16 +76,15 @@ async function getItems() {
       }
     );
     const items = response.data.elements;
-    //fetch and attach categories for each item
-    for (let item of items) {
-      try{
-        const categories = await getItemCategories(item.id);
-        item.categoryId = categories.length > 0 ? categories[0].id : null;
-      } catch(categoryError){
-        logger.warn(`No category found for item: ${item.name}`);
-        item.categoryId = null;
-      }
-    }
+    
+    //fetch and attach categories for each item once to reduce redundant api calls
+    const {categoriesMap} = await getAllCategories();
+    
+    //map category names to items
+    items.forEach((item) => {
+      item.categoryName = categoriesMap[item.categoryId] || "Uncategorized";
+    });
+
     logger.info("Items fetched and categories mapped.");
     return items;
   } catch(error){
