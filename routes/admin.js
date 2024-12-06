@@ -9,6 +9,7 @@ const discounts = [
   { id: 2, product: "Vape Pen", discount: "10%", validUntil: "2024-12-15" },
 ];
 
+
 //auth0 secure admin route
 router.get("/admin", (req, res) => {
   if (req.oidc.isAuthenticated()) {
@@ -42,6 +43,7 @@ router.get("/is-admin", (req, res) =>{
     res.status(403).json({ isAdmin: false, message: "Access Denied"});
   }
 });
+
 
 //Logic to discuont or remove discount from an item
 router.post("/update-discount", async (req, res) => {

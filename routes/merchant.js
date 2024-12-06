@@ -28,7 +28,7 @@ router.get("/categories", async (req, res) => {
   try {
     const data = await getAllCategories();
     logger.info(`Fetched list of categories from merchant...`);
-    res.json(data);
+    res.json(data.elements || data);
   } catch (error) {
     logger.error("Failed to fetch list of categories: ", error);
     res.status(500).json({ error: "Failed to fetch categories..." });

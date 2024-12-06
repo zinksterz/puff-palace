@@ -34,12 +34,33 @@ async function getAllCategories() {
         },
       }
     );
-    return response.data;
-  } catch (error) {
-    logger.error(
-      `Error Details: `,
-      error.response ? error.response.data : error.message
+    const categories = response.data.elements;
+    const categoriesMap = {};
+
+    categories.forEach((category) =>{
+      categoriesMap[category.id] = category.name;
+    });
+    logger.info("Categories fetched and mapped.");
+    return {categories, categoriesMap};
+  } catch(error){
+    logger.error(`Error fetching categories: `, error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
+
+async function getItemCategories(itemId) {
+  try {
+    const response = await axios.get(
+      `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items/${itemId}/categories`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+        },
+      }
     );
+    return response.data.elements;
+  } catch (error) {
+    logger.error("Error fetching item categories: ", error);
     throw error;
   }
 }
@@ -54,11 +75,20 @@ async function getItems() {
         },
       }
     );
-    return response.data.elements.map((item) => ({
-      ...item,
-      isDiscounted: false, //defaults to no discount
-    }));
-  } catch (error) {
+    const items = response.data.elements;
+    //fetch and attach categories for each item
+    for (let item of items) {
+      try{
+        const categories = await getItemCategories(item.id);
+        item.categoryId = categories.length > 0 ? categories[0].id : null;
+      } catch(categoryError){
+        logger.warn(`No category found for item: ${item.name}`);
+        item.categoryId = null;
+      }
+    }
+    logger.info("Items fetched and categories mapped.");
+    return items;
+  } catch(error){
     logger.error("Error fetching all items: ", error.message);
     throw error;
   }
