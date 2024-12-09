@@ -35,13 +35,8 @@ async function getAllCategories() {
       }
     );
     const categories = response.data.elements;
-    const categoriesMap = {};
-
-    categories.forEach((category) =>{
-      categoriesMap[category.id] = category.name;
-    });
-    logger.info("Categories fetched and mapped.");
-    return {categories, categoriesMap};
+    logger.info("Categories fetched.");
+    return categories;
   } catch(error){
     logger.error(`Error fetching categories: `, error.response ? error.response.data : error.message);
     throw error;
@@ -58,6 +53,7 @@ async function getItemCategories(itemId) {
         },
       }
     );
+    logger.info(`Categories returned for item: ${itemId}`);
     return response.data.elements;
   } catch (error) {
     logger.error("Error fetching item categories: ", error);
@@ -76,12 +72,27 @@ async function getItems() {
       }
     );
     const items = response.data.elements;
-    
+
     //fetch and attach categories for each item once to reduce redundant api calls
-    const {categoriesMap} = await getAllCategories();
-    
+    const categories = await getAllCategories();
+    const categoriesMap = {};
+
+    categories.forEach((category) => {
+      categoriesMap[category.id] = category.name;
+    });
+    // console.log(categoriesMap);
     //map category names to items
+    // const itemCat = await getItemCategories(items[0].id);
+    // console.log(itemCat);
+    // const itemCat = await getItemCategories(items[0].id);
+    // console.log(itemCat);
+    // console.log(itemCat[0].name);
+
+    //Here we need to call getItemCategories and send along the itemId. We can then use the category returned 
     items.forEach((item) => {
+      // const itemCat = await getItemCategories(item.id);
+      // console.log(itemCat);
+      // item.categoryId = itemCat[0].id;
       item.categoryName = categoriesMap[item.categoryId] || "Uncategorized";
     });
 

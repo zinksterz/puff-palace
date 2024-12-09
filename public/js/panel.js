@@ -1,12 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const categories = await fetchCategories();
-    console.log(categories);
-    if (Array.isArray(categories) && categories.length > 0) {
-      renderCategories(categories);
-    } else {
-      console.warn("No categories to render.");
-    }
+    if(categories) renderCategories(categories);
     
     //fetch and display all items
     const allItems = await fetchItems();
