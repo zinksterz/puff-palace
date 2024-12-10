@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if(categories) renderCategories(categories);
     
     //fetch and display all items
-    const allItems = await fetchItems();
-    if (allItems) populateProductTable(allItems);
+    // const allItems = await fetchItems();
+    // if (allItems) populateProductTable(allItems);
 
     //fetch and display discounts
     const discounts = await fetchDiscounts();
@@ -103,7 +103,7 @@ function populateProductTable(products) {
     const row = document.createElement("tr"); //eventually will change product.categoryId from id to category.name likely using the mapping function
     row.innerHTML = `
             <td>${product.name}</td>
-            <td>${product.categoryName || "Uncategorized"}</td> 
+            <td>${product.available}</td> 
             <td>$${(product.price / 100).toFixed(2)}</td>
             <td>
                 <button onclick="editProduct('${product.id}')">Edit</button>
