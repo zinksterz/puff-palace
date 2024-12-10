@@ -89,12 +89,18 @@ async function getItems() {
     // console.log(itemCat[0].name);
 
     //Here we need to call getItemCategories and send along the itemId. We can then use the category returned 
-    items.forEach((item) => {
-      // const itemCat = await getItemCategories(item.id);
-      // console.log(itemCat);
-      // item.categoryId = itemCat[0].id;
-      item.categoryName = categoriesMap[item.categoryId] || "Uncategorized";
-    });
+    for (let item of items) {
+      try{
+        const itemCategories = await getItemCategories(item.id);
+        const primaryCategory = itemCategories.length > 0 ? itemCategories[0] : null;
+        item.categoryId = primaryCategory ? primaryCategory.id : null;
+        item.categoryName = primaryCategory ? categoriesMap[item.categoryId] : "Uncategorized";
+      } catch(categoryError){
+        logger.warn(`No category found for item: ${item.name}`);
+        item.categoryId = null;
+        item.categoryName = "Uncategorized";
+      }
+    };
 
     logger.info("Items fetched and categories mapped.");
     return items;
