@@ -93,9 +93,9 @@
     </div>
 
     <!-- Edit item modal -->
-     <div id="edit-item-modal" class="modal">
+     <div id="edit-item-modal">
         <div class="modal-content">
-            <span class="close" id="close-edit-modal">&times;</span>
+            <button class="modal-close-btn" id="close-edit-modal" aria-label="Close modal">&times;</button>
             <h2>Edit Product</h2>
             <form id="edit-item-form">
                 <label for="edit-item-name">Name:</label>
@@ -110,7 +110,7 @@
                     <option value="false">No</option>
                 </select>
 
-                <button type="submit" class="product-action-btn edit">Save Changes</button>
+                <button type="submit" class="save-changes-btn">Save Changes</button>
             </form>
         </div>
      </div>

@@ -127,7 +127,7 @@ function openEditModal(product){
   //Store prodId for submission
   form.dataset.productId = product.id;
   
-  modal.style.display = "block";
+  modal.style.display = "flex";
 }
 
 document.getElementById("close-edit-modal").addEventListener("click",() =>{
