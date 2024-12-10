@@ -59,7 +59,6 @@ async function fetchDiscounts() {
       throw new Error(`Failed to fetch discounts: ${response.statusText}`);
     }
     const { discounts } = await response.json();
-    // populateDiscountTable(discounts);
     return discounts;
   } catch (error) {
     console.error("Error fetching discounts: ", error);
@@ -67,10 +66,26 @@ async function fetchDiscounts() {
   }
 }
 
+async function handleCategorySelection(categoryId, categoryName){
+  try{
+    const items = await fetchItems(categoryId);
+
+    //update category header
+    const categoryHeader = document.getElementById("current-category-header");
+    const currentCategory = document.getElementById("current-category");
+
+    currentCategory.textContent = categoryName;
+    categoryHeader.style.display = "block";
+
+    populateProductTable(items);
+  } catch(error){
+    console.error(`Error fetching items for category: ${error}`);
+  }
+}
+
 async function renderCategories(categories) {
   const categoryContainer = document.getElementById("category-container");
   if (!categoryContainer) return;
-  console.log("renderCategories is recieving the following as a parameter: ",categories);
   categoryContainer.innerHTML = "";
   categories.forEach((category) => {
     const categoryCard = document.createElement("div");
@@ -83,12 +98,7 @@ async function renderCategories(categories) {
     //event listener for clarity
     const button = categoryCard.querySelector("button");
     button.addEventListener("click", async () => {
-      try {
-        const items = await fetchItems(category.id);
-        populateProductTable(items);
-      } catch (error) {
-        console.error(`Error fetching items for category: ${category.name}`);
-      }
+      handleCategorySelection(category.id, category.name);
     });
     categoryContainer.appendChild(categoryCard);
   });
@@ -100,7 +110,7 @@ function populateProductTable(products) {
 
   tableBody.innerHTML = ""; // Clear existing rows
   products.forEach((product) => {
-    const row = document.createElement("tr"); //eventually will change product.categoryId from id to category.name likely using the mapping function
+    const row = document.createElement("tr"); 
     row.innerHTML = `
             <td>${product.name}</td>
             <td>${product.available}</td> 
@@ -114,23 +124,23 @@ function populateProductTable(products) {
   });
 }
 
-function renderItems(items) {
-  const itemsContainer = document.getElementById("items-container");
-  itemsContainer.innerHTML = "";
+// function renderItems(items) {
+//   const itemsContainer = document.getElementById("items-container");
+//   itemsContainer.innerHTML = "";
 
-  items.forEach((item) => {
-    const itemElement = document.createElement("div");
-    itemElement.classList.add("item-card");
-    itemElement.innerHTML = `
-        <h4>${item.name}</h4>
-        <p>Price: $${(item.price / 100).toFixed(2)}</p>
-        <button onclick="applyDiscount('${
-          item.id
-        }', 50)">Apply 50% Discount</button>
-        `;
-    itemsContainer.appendChild(itemElement);
-  });
-}
+//   items.forEach((item) => {
+//     const itemElement = document.createElement("div");
+//     itemElement.classList.add("item-card");
+//     itemElement.innerHTML = `
+//         <h4>${item.name}</h4>
+//         <p>Price: $${(item.price / 100).toFixed(2)}</p>
+//         <button onclick="applyDiscount('${
+//           item.id
+//         }', 50)">Apply 50% Discount</button>
+//         `;
+//     itemsContainer.appendChild(itemElement);
+//   });
+// }
 
 function populateDiscountTable(discounts) {
   const tableBody = document.getElementById("discount-table-body");

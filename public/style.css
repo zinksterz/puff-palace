@@ -542,6 +542,12 @@ nav li:first-child{
     cursor: pointer;
 }
 
+#category-header {
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
 @media(max-width: 800px){
   nav  .hideOnMobile{
         display:none;
