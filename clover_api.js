@@ -146,10 +146,30 @@ async function fetchProductDetails(productId) {
   }
 }
 
+async function updateItemInDatabase(itemId, updatedData) {
+  try{
+    const response = await axios.put(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items/${itemId}`,
+    updatedData,
+    {
+      headers:{
+        Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  logger.info(`Item ${itemId} updated successfully!`);
+  return response.data;
+  } catch(error){
+    logger.error(`Error updating item ${itemId}: `, error.response?.data || error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   getMerchantData,
   getAllCategories,
   getItemsByCategory,
   fetchProductDetails,
   getItems,
+  updateItemInDatabase,
 };

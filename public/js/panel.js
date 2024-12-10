@@ -115,6 +115,66 @@ async function renderCategories(categories) {
   });
 }
 
+
+function openEditModal(product){
+  const modal = document.getElementById("edit-item-modal");
+  const form = document.getElementById("edit-item-form");
+  //Prefill form
+  document.getElementById("edit-item-name").value = product.name;
+  document.getElementById("edit-item-price").value = (product.price / 100).toFixed(2);
+  document.getElementById("edit-item-stock").value = product.available;
+  
+  //Store prodId for submission
+  form.dataset.productId = product.id;
+  
+  modal.style.display = "block";
+}
+
+document.getElementById("close-edit-modal").addEventListener("click",() =>{
+  const modal = document.getElementById("edit-item-modal");
+  modal.style.display = "none";
+});
+window.onclick = function (event) {
+  const modal = document.getElementById("edit-item-modal");
+  if(event.target === modal){
+    modal.style.display = "none";
+  }
+};
+
+document.getElementById("edit-item-form").addEventListener("submit", async (e) =>{
+  e.preventDefault();
+  
+  
+  const form = e.target;
+  const productId = form.dataset.productId;
+  const updatedProduct = {
+    name: document.getElementById("edit-item-name").value,
+    price: parseFloat(document.getElementById("edit-item-price").value) * 100,
+    available: document.getElementById("edit-item-stock").value === "true",
+  };
+  
+  try{
+    const response = await fetch(`/api/items/${productId}`,{
+      method:"PUT",
+      headers:{
+        "Content-Type": "application/json",
+      },
+      body:JSON.stringify(updatedProduct),
+    });
+    
+    if(!response.ok) throw new Error("Failed to update product");
+    
+    console.log("Product updated successfully!");
+    //Close modal and refresh product table
+    document.getElementById("edit-item-modal").style.display = "none";
+    const currentCategoryId = document.getElementById("current-category-header").dataset.categoryId;
+    const items = await fetchItems(currentCategoryId);
+    populateProductTable(items);
+  } catch(error){
+    console.error("Error updating product: ", error);
+  }
+});
+
 function populateProductTable(products) {
   const tableBody = document.getElementById("product-table-body");
   if (!tableBody) return;
@@ -124,34 +184,28 @@ function populateProductTable(products) {
     const row = document.createElement("tr");
     row.innerHTML = `
             <td>${product.name}</td>
-            <td>${product.available}</td> 
+            <td>${product.available ? "In Stock" : "Out of Stock"}</td> 
             <td>$${(product.price / 100).toFixed(2)}</td>
             <td>
-                <button onclick="editProduct('${product.id}')">Edit</button>
-                <button onclick="deleteProduct('${product.id}')">Delete</button>
+                <button class="product-action-btn edit" data-product='${JSON.stringify(product)}'>Edit</button>
+                <button class="product-action-btn delete" data-id="${product.id}">Delete</button>
             </td>
         `;
     tableBody.appendChild(row);
   });
+
+  //Event listeners for edit and delete
+  tableBody.addEventListener("click", (e) => {
+    const productId = e.target.dataset.id;
+    if(e.target.classList.contains("edit")){
+      const product = JSON.parse(e.target.dataset.product);
+      openEditModal(product);
+    } else if (e.target.classList.contains("delete")){
+      const productId = e.target.dataset.id;
+      deleteProduct(productId);
+    }
+  });
 }
-
-// function renderItems(items) {
-//   const itemsContainer = document.getElementById("items-container");
-//   itemsContainer.innerHTML = "";
-
-//   items.forEach((item) => {
-//     const itemElement = document.createElement("div");
-//     itemElement.classList.add("item-card");
-//     itemElement.innerHTML = `
-//         <h4>${item.name}</h4>
-//         <p>Price: $${(item.price / 100).toFixed(2)}</p>
-//         <button onclick="applyDiscount('${
-//           item.id
-//         }', 50)">Apply 50% Discount</button>
-//         `;
-//     itemsContainer.appendChild(itemElement);
-//   });
-// }
 
 function populateDiscountTable(discounts) {
   const tableBody = document.getElementById("discount-table-body");
@@ -165,8 +219,8 @@ function populateDiscountTable(discounts) {
             <td>${discount.discount}</td>
             <td>${new Date(discount.validUntil).toLocaleDateString()}</td>
             <td>
-                <button onclick="editDiscount('${discount.id}')">Edit</button>
-                <button onclick="removeDiscount('${
+                <button class="product-action-btn edit" onclick="editDiscount('${discount.id}')">Edit</button>
+                <button class="product-action-btn delete" onclick="removeDiscount('${
                   discount.id
                 }')">Remove</button>
             </td>

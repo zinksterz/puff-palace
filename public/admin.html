@@ -36,6 +36,9 @@
                 </div>
             </div>
         </section>
+
+        <hr class="section-separator"/>
+
         <!-- Category Management Section -->
          <section id="categories">
             <h1>Category Management</h1>
@@ -44,6 +47,8 @@
                 <!-- Dynamic category cards will be inserted here -->
             </div>
          </section>
+
+        <hr class="section-separator"/>
 
         <!-- Product Management Section -->
         <section id="products">
@@ -65,6 +70,8 @@
             </table>
         </section>
 
+        <hr class="section-separator"/>
+
         <!-- Discounts Section -->
         <section id="discounts">
             <h1>Manage Discounts</h1>
@@ -84,6 +91,30 @@
             </table>
         </section>
     </div>
+
+    <!-- Edit item modal -->
+     <div id="edit-item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-edit-modal">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="edit-item-form">
+                <label for="edit-item-name">Name:</label>
+                <input type="text" id="edit-item-name" name="name" required />
+
+                <label for="edit-item-price">Price:</label>
+                <input type="number" id="edit-item-price" name="price" step="0.01" required />
+
+                <label for="edit-item-stock">In Stock:</label>
+                <select id="edit-item-stock" name="available">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+
+                <button type="submit" class="product-action-btn edit">Save Changes</button>
+            </form>
+        </div>
+     </div>
+
     <script src="js/items.js" defer></script>
     <script src="js/admin.js" defer></script>
     <script src="js/panel.js" defer></script>
