@@ -74,6 +74,7 @@ async function handleCategorySelection(categoryId, categoryName, categoryCard) {
     const currentCategory = document.getElementById("current-category");
 
     currentCategory.textContent = categoryName;
+    categoryHeader.dataset.categoryId = categoryId;
     categoryHeader.style.display = "block";
     
     //Update selected card with item count
