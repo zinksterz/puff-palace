@@ -165,6 +165,24 @@ async function updateItemInDatabase(itemId, updatedData) {
   }
 }
 
+async function deleteItemFromDatabase(itemId){
+  try{
+    const response = await axios.delete(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items/${itemId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+        "Content-Type": "applciation/json",
+      },
+    }
+  );
+  logger.info(`Item ${itemId} deleted successfully.`);
+  return response.data;
+  }catch(error){
+    logger.error(`Error deleting item: ${itemId}`, error.response?.data || error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   getMerchantData,
   getAllCategories,
@@ -172,4 +190,5 @@ module.exports = {
   fetchProductDetails,
   getItems,
   updateItemInDatabase,
+  deleteItemFromDatabase,
 };

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
-const {updateItemInDatabase} = require("../clover_api");
+const {updateItemInDatabase, deleteItemFromDatabase} = require("../clover_api");
 require("dotenv").config();
 
 //temporary in-memory discount storage to be replaced by database
@@ -120,7 +120,17 @@ router.put("/items/:id", async (req, res) =>{
 
 
 //removing item
+router.delete("/items/:id", async(req, res) =>{
+  const itemId = req.params.id;
 
+  try{
+    const result = await deleteItemFromDatabase(itemId);
+    res.status(200).json({success: true, message: "Item deleted successfully"})
+  } catch(error){
+    console.error(`Error deleting item ${itemId}: `, error);
+    res.status(500).json({error: "Failed to delete item"});
+  }
+});
 
 
 //views for admin specific stats (revenue/active discounts/etc)

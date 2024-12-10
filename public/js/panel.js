@@ -176,6 +176,26 @@ document.getElementById("edit-item-form").addEventListener("submit", async (e) =
   }
 });
 
+async function deleteProduct(productId){
+  try{
+    const confirmDelete = confirm("Are you sure you want to delete this product?");
+    if(!confirmDelete) return;
+
+    const response = await fetch(`/api/items/${productId}`,{
+      method: "DELETE",
+    });
+    if(!response.ok) throw new Error("Failed to delete product");
+    console.log("Product deleted successfully!");
+    //refresh product table
+    const currentCategoryId = document.getElementById("current-category-header").dataset.categoryId;
+    const items = await fetchItems(currentCategoryId);
+    populateProductTable(items);
+  }catch(error){
+    console.error("Error deleting product: ", error);
+    alert("Failed to delete the product. Please try again.");
+  }
+}
+
 function populateProductTable(products) {
   const tableBody = document.getElementById("product-table-body");
   if (!tableBody) return;
@@ -202,7 +222,6 @@ function populateProductTable(products) {
       const product = JSON.parse(e.target.dataset.product);
       openEditModal(product);
     } else if (e.target.classList.contains("delete")){
-      const productId = e.target.dataset.id;
       deleteProduct(productId);
     }
   });
