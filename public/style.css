@@ -710,6 +710,7 @@ td button{
 }
 
 /* Modal Styling */
+#add-product-modal,
 #edit-item-modal{
     display:none;
     position:fixed;

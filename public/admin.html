@@ -115,6 +115,26 @@
         </div>
      </div>
 
+     <!-- Add product modal -->
+      <div id="add-product-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Product</h2>
+            <button class="modal-close-btn" id="close-add-modal">&times;</button>
+            <form id="add-product-form">
+                <label for="add-product-name">Name:</label>
+                <input type="text" id="add-product-name" required />
+                <label for="add-product-price">Price:</label>
+                <input type="number" id="add-product-price" step="0.01" required />
+                <label for="add-product-stock">In Stock:</label>
+                <select id="add-product-stock">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+                <button type="submit" class="save-changes-btn">Save Product</button>
+            </form>
+        </div>
+      </div>
+
     <script src="js/items.js" defer></script>
     <script src="js/admin.js" defer></script>
     <script src="js/panel.js" defer></script>

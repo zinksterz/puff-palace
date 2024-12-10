@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
-const {updateItemInDatabase, deleteItemFromDatabase} = require("../clover_api");
+const {updateItemInDatabase, deleteItemFromDatabase, addItemToDatabase, addItemToCategory} = require("../clover_api");
 require("dotenv").config();
 
 //temporary in-memory discount storage to be replaced by database
@@ -101,7 +101,27 @@ router.get("/discounts", (req, res) => {
 
 
 //adding new items
+router.post("/items", async (req, res) => {
+  const {name, price, available, categories} = req.body;
 
+  try{
+    const newItem = {
+      name, 
+      price, 
+      available, 
+      categories,
+    };
+    const createdItem = await addItemToDatabase(newItem);
+    const categoryId = categories[0]?.id;
+    if(categoryId){
+      await addItemToCategory(createdItem.id, categoryId);
+    }
+    res.status(201).json(createdItem);
+  }catch(error){
+    console.error("Error adding new item:", error);
+    res.status(500).json({error:"Failed to add new item"});
+  }
+});
 
 
 //updating item details

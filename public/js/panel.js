@@ -3,10 +3,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const categories = await fetchCategories();
     if (categories) renderCategories(categories);
 
-    //fetch and display all items
-    // const allItems = await fetchItems();
-    // if (allItems) populateProductTable(allItems);
-
     //fetch and display discounts
     const discounts = await fetchDiscounts();
     if (discounts) populateDiscountTable(discounts);
@@ -209,6 +205,59 @@ async function deleteProduct(productId){
   }
 }
 
+//Open add product modal
+document.getElementById("add-product-btn").addEventListener("click", () =>{
+  const modal = document.getElementById("add-product-modal");
+  modal.style.display = "flex";
+});
+//Close add product modal
+document.getElementById("close-add-modal").addEventListener("click", () => {
+  const modal = document.getElementById("add-product-modal");
+  modal.style.display = "none";
+});
+window.onclick = function (event){
+  const modal = document.getElementById("add-product-modal");
+  if(event.target === modal){
+    modal.style.display = "none";
+  }
+};
+
+document.getElementById("add-product-form").addEventListener("submit", async (e) =>{
+  e.preventDefault();
+
+  const categoryId = document.getElementById("current-category-header").dataset.categoryId;
+  const categoryName = document.getElementById("current-category").textContent;
+  const newProduct = {
+    name: document.getElementById("add-product-name").value,
+    price: parseFloat(document.getElementById("add-product-price").value) * 100,
+    available: document.getElementById("add-product-stock").value === "true",
+    categories:  [
+      {
+        id:categoryId,
+        name:categoryName,
+      },
+    ],
+  };
+  try{
+    const response = await fetch("/api/items", {
+      method: "POST",
+      headers:{
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
+    });
+    if(!response.ok) throw new Error("Failed to add product");
+    console.log("Product added successfully!");
+    //Close modal and refresh product table
+    document.getElementById("add-product-modal").style.display = "none";
+    const items = await fetchItems(categoryId);
+    populateProductTable(items);
+  } catch(error){
+    console.error("Error adding product: ", error);
+    alert("Failed to add the product. Please try again.");
+  }
+});
+
 function populateProductTable(products) {
   const tableBody = document.getElementById("product-table-body");
   if (!tableBody) return;
@@ -229,19 +278,6 @@ function populateProductTable(products) {
   });
 }
   
-
-//   //Event listeners for edit and delete
-//   tableBody.addEventListener("click", (e) => {
-//     const productId = e.target.dataset.id;
-//     if(e.target.classList.contains("edit")){
-//       const product = JSON.parse(e.target.dataset.product);
-//       openEditModal(product);
-//     } else if (e.target.classList.contains("delete")){
-//       deleteProduct(productId);
-//     }
-//   });
-// }
-
 function populateDiscountTable(discounts) {
   const tableBody = document.getElementById("discount-table-body");
   if (!tableBody) return;

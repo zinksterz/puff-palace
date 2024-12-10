@@ -171,7 +171,7 @@ async function deleteItemFromDatabase(itemId){
     {
       headers: {
         Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
-        "Content-Type": "applciation/json",
+        "Content-Type": "application/json",
       },
     }
   );
@@ -179,6 +179,57 @@ async function deleteItemFromDatabase(itemId){
   return response.data;
   }catch(error){
     logger.error(`Error deleting item: ${itemId}`, error.response?.data || error.message);
+    throw error;
+  }
+}
+
+async function addItemToDatabase(itemData){
+  try{
+    const response = await axios.post(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`,
+      itemData,
+      {
+      headers:{
+        Authorization:`Bearer ${process.env.CLOVER_API_TOKEN}`,
+        "Content-Type":"application/json",
+      },
+    }
+  );
+    console.log(`Item ${itemData.name} added successfully!`);
+    return response.data;
+  }catch(error){
+    console.error("Error adding item to Clover: ", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+async function addItemToCategory(itemId, categoryId) {
+  try {
+    const response = await axios.post(
+      `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/category_items`,
+      {
+        elements: [
+          {
+            category:{id:categoryId},
+            item:{id: itemId},
+          },
+        ],
+      }, // Required payload
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(
+      `Item ${itemId} successfully assigned to category ${categoryId} successfully!`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error assigning item ${itemId} to category ${categoryId}: `,
+      error.response?.data || error.message
+    );
     throw error;
   }
 }
@@ -191,4 +242,6 @@ module.exports = {
   getItems,
   updateItemInDatabase,
   deleteItemFromDatabase,
+  addItemToDatabase,
+  addItemToCategory,
 };
