@@ -18,6 +18,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         applyDiscount();
       });
     }
+
+    const tableBody = document.getElementById("product-table-body");
+    if(tableBody){
+      tableBody.addEventListener("click", (e) =>{
+        const productId = e.target.dataset.id;
+        if(e.target.classList.contains("edit")){
+          const product = JSON.parse(e.target.dataset.product);
+          openEditModal(product);
+        } else if(e.target.classList.contains("delete")){
+          deleteProduct(productId);
+        }
+      });
+    }
   } catch (error) {
     console.error("Error initializing admin panel: ", error);
   }
@@ -214,18 +227,20 @@ function populateProductTable(products) {
         `;
     tableBody.appendChild(row);
   });
-
-  //Event listeners for edit and delete
-  tableBody.addEventListener("click", (e) => {
-    const productId = e.target.dataset.id;
-    if(e.target.classList.contains("edit")){
-      const product = JSON.parse(e.target.dataset.product);
-      openEditModal(product);
-    } else if (e.target.classList.contains("delete")){
-      deleteProduct(productId);
-    }
-  });
 }
+  
+
+//   //Event listeners for edit and delete
+//   tableBody.addEventListener("click", (e) => {
+//     const productId = e.target.dataset.id;
+//     if(e.target.classList.contains("edit")){
+//       const product = JSON.parse(e.target.dataset.product);
+//       openEditModal(product);
+//     } else if (e.target.classList.contains("delete")){
+//       deleteProduct(productId);
+//     }
+//   });
+// }
 
 function populateDiscountTable(discounts) {
   const tableBody = document.getElementById("discount-table-body");
