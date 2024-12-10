@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const categories = await fetchCategories();
-    if(categories) renderCategories(categories);
-    
+    if (categories) renderCategories(categories);
+
     //fetch and display all items
     // const allItems = await fetchItems();
     // if (allItems) populateProductTable(allItems);
@@ -34,19 +34,18 @@ async function fetchCategories() {
   }
 }
 
-
 async function fetchItems(categoryId = "") {
-  try{
+  try {
     const endpoint = categoryId ? `/api/category/${categoryId}` : `/api/items`;
     const response = await fetch(endpoint);
-    if(!response.ok) throw new Error("Failed to fetch items");
+    if (!response.ok) throw new Error("Failed to fetch items");
     const items = await response.json();
-    if(!items || items.length === 0){
+    if (!items || items.length === 0) {
       console.warn("No items were found");
       return [];
     }
     return items;
-  } catch(error){
+  } catch (error) {
     console.error("Error fetching items: ", error);
     return [];
   }
@@ -66,8 +65,8 @@ async function fetchDiscounts() {
   }
 }
 
-async function handleCategorySelection(categoryId, categoryName){
-  try{
+async function handleCategorySelection(categoryId, categoryName, categoryCard) {
+  try {
     const items = await fetchItems(categoryId);
 
     //update category header
@@ -76,9 +75,13 @@ async function handleCategorySelection(categoryId, categoryName){
 
     currentCategory.textContent = categoryName;
     categoryHeader.style.display = "block";
-
+    
+    //Update selected card with item count
+    const itemCount = items.length;
+    const itemCountDisplay = categoryCard.querySelector(".item-count");
+    itemCountDisplay.textContent = `${itemCount} items`;
     populateProductTable(items);
-  } catch(error){
+  } catch (error) {
     console.error(`Error fetching items for category: ${error}`);
   }
 }
@@ -86,20 +89,28 @@ async function handleCategorySelection(categoryId, categoryName){
 async function renderCategories(categories) {
   const categoryContainer = document.getElementById("category-container");
   if (!categoryContainer) return;
+  //sort categories alphabetically
+  categories.sort((a,b) => a.name.localeCompare(b.name));
   categoryContainer.innerHTML = "";
   categories.forEach((category) => {
     const categoryCard = document.createElement("div");
     categoryCard.classList.add("category-card");
     categoryCard.innerHTML = `
         <h3>${category.name}</h3>
+        <p class="item-count"></p>
         <button>View Items</button>
         `;
 
     //event listener for clarity
     const button = categoryCard.querySelector("button");
     button.addEventListener("click", async () => {
-      handleCategorySelection(category.id, category.name);
+      document
+        .querySelectorAll(".category-card")
+        .forEach((card) => card.classList.remove("selected"));
+      categoryCard.classList.add("selected");
+      handleCategorySelection(category.id, category.name, categoryCard);
     });
+    //append card to container
     categoryContainer.appendChild(categoryCard);
   });
 }
@@ -110,7 +121,7 @@ function populateProductTable(products) {
 
   tableBody.innerHTML = ""; // Clear existing rows
   products.forEach((product) => {
-    const row = document.createElement("tr"); 
+    const row = document.createElement("tr");
     row.innerHTML = `
             <td>${product.name}</td>
             <td>${product.available}</td> 
