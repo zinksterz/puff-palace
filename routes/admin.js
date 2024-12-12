@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
+const {getCachedTotalProducts} = require("../utils/cacheHandler");
 const {updateItemInDatabase, deleteItemFromDatabase, addItemToDatabase, addItemToCategory} = require("../clover_api");
 require("dotenv").config();
 
@@ -154,5 +155,16 @@ router.delete("/items/:id", async(req, res) =>{
 
 
 //views for admin specific stats (revenue/active discounts/etc)
+//Total Products
+router.get("/total-products", (req, res) => {
+  try{
+    const totalProducts = getCachedTotalProducts();
+    res.json({success:true, totalProducts});
+  }catch(error){
+    console.error("Error retrieving cached total products count: ", error);
+    res.status(500).json({success:false, error:"Failed to retrieve cached total products count..."});
+  }
+});
+
 
 module.exports = router;

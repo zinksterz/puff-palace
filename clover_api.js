@@ -234,6 +234,23 @@ async function addItemToCategory(itemId, categoryId) {
   }
 }
 
+async function getTotalProductsCount() {
+  try{
+    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items?count=true`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+        },
+      }
+    );
+    console.log(response.data.count);
+    return response.data.count; //adjust on actual data response
+  }catch(error){
+    console.error("Error fetching total products count: ", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getMerchantData,
   getAllCategories,
@@ -244,4 +261,5 @@ module.exports = {
   deleteItemFromDatabase,
   addItemToDatabase,
   addItemToCategory,
+  getTotalProductsCount,
 };

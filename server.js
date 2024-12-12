@@ -3,8 +3,10 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const logger = require("./utils/logger");
+const {cacheTotalProducts} = require("./utils/cacheHandler");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
+const cron = require("node-cron");
 //Auth middleware
 const authMiddleware = require("./auth");
 
@@ -59,6 +61,17 @@ app.use("/api/auth", authRoutes);
 
 //Winston - Logger logic
 logger.info("Server is starting...");
+
+//Scheduling tasks to run every day at 11:59 PM
+cron.schedule("08 18 * * *", async() =>{
+  console.log("Refreshing total product count cache...");
+  try{
+    await cacheTotalProducts();
+    console.log("Total products count cache refreshed successfully.");
+  }catch(error){
+    console.error("Failed to refresh total product count cache: ", error);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
