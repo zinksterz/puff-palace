@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const logger = require("./utils/logger");
-const {cacheTotalProducts} = require("./utils/cacheHandler");
+const { cacheTotalProducts } = require("./utils/cacheHandler");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
 const cron = require("node-cron");
@@ -48,7 +48,7 @@ app.use(limiter);
 const PORT = process.env.PORT || 3000;
 
 //Landing page
-app.get("/", (req, res) =>{
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
@@ -63,12 +63,12 @@ app.use("/api/auth", authRoutes);
 logger.info("Server is starting...");
 
 //Scheduling tasks to run every day at 11:59 PM
-cron.schedule("08 18 * * *", async() =>{
+cron.schedule("59 23 * * *", async () => {
   console.log("Refreshing total product count cache...");
-  try{
+  try {
     await cacheTotalProducts();
     console.log("Total products count cache refreshed successfully.");
-  }catch(error){
+  } catch (error) {
     console.error("Failed to refresh total product count cache: ", error);
   }
 });

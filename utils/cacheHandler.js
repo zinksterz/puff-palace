@@ -1,4 +1,4 @@
-let totalProductCountCache = 25;
+let totalProductCountCache = 0;
 
 const {getTotalProductsCount} = require("../clover_api");
 

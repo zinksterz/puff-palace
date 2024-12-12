@@ -235,21 +235,50 @@ async function addItemToCategory(itemId, categoryId) {
 }
 
 async function getTotalProductsCount() {
+  let totalCount = 0;
+  let offset = 0;
+  const limit = 100;//Clovers default page size
+  const url = `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`;
   try{
-    const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items?count=true`,
-      {
+    while(true){
+      const response = await axios.get(url,{
         headers: {
           Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
         },
+        params: {
+          limit,
+          offset,//fetches the next page
+        },
+      });
+      const items = response.data.elements;
+      totalCount += items.length;
+
+      //Break out if fewer than limit
+      if(items.length < limit){
+        break;
       }
-    );
-    console.log(response.data.count);
-    return response.data.count; //adjust on actual data response
+      offset += limit;//move to next page
+    }
+    return totalCount;
   }catch(error){
     console.error("Error fetching total products count: ", error);
     throw error;
   }
 }
+//   try{
+//     const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+//         },
+//       }
+//     );
+//     return response.data.elements.length; //adjust on actual data response
+//   }catch(error){
+//     console.error("Error fetching total products count: ", error);
+//     throw error;
+//   }
+// }
 
 module.exports = {
   getMerchantData,
