@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
 
+    //initializes product table with a message
+    populateProductTable([]);
+
     const tableBody = document.getElementById("product-table-body");
     if(tableBody){
       tableBody.addEventListener("click", (e) =>{
@@ -59,18 +62,77 @@ async function fetchItems(categoryId = "") {
     return [];
   }
 }
-
+//Fetching discounts
 async function fetchDiscounts() {
   try {
-    const response = await fetch("/api/discounts");
+    const response = await fetch("/api/items/discounted");
     if (!response.ok) {
-      throw new Error(`Failed to fetch discounts: ${response.statusText}`);
+      throw new Error(`Failed to fetch discounted items.`);
     }
-    const { discounts } = await response.json();
+    const discounts = await response.json();
     return discounts;
   } catch (error) {
     console.error("Error fetching discounts: ", error);
     return [];
+  }
+}
+
+//Edit discounts
+async function editDiscount(discountId){
+  const newPercentage = prompt("Enter the new discount percentage:");
+  const validUntil = prompt("Enter the date you want this sale to end (YYYY-MM-DD):");
+
+  if(!newPercentage || !validUntil){
+    alert("Both percentage and valid until date are required.");
+    return;
+  }
+
+  try{
+    const response = await fetch("/api/update-discount",{
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        itemId: discountId,
+        discount_percentage: parseFloat(newPercentage),
+        validUntil,
+      }),
+    });
+    if(!response.ok) throw new Error("Failed to update discount");
+    alert("Discount updated successfully!");
+    const discounts = await fetchDiscounts();
+    populateDiscountTable(discounts);
+  }catch(error){
+    console.error("Error editing discount: ", error);
+    alert("Failed to edit discount.");
+  }
+}
+
+//Remove a discount
+async function removeDiscount(discountId) {
+  const confirmRemove = confirm(
+    "Are you sure you want to remove this discount?"
+  );
+  if (!confirmRemove) return;
+
+  try {
+    const response = await fetch(`/api/update-discount`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itemId: discountId,
+        discount_percentage: null, // Set discount to null
+        validUntil: null,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to remove discount");
+    alert("Discount removed successfully!");
+
+    const discounts = await fetchDiscounts();
+    populateDiscountTable(discounts);
+  } catch (error) {
+    console.error("Error removing discount:", error);
+    alert("Failed to remove discount.");
   }
 }
 
@@ -349,6 +411,14 @@ function populateProductTable(products) {
   if (!tableBody) return;
 
   tableBody.innerHTML = ""; // Clear existing rows
+
+  if(!products || products.length === 0) {
+    //Display message when no products are available
+    const noItemsRow = document.createElement("tr");
+    noItemsRow.innerHTML = `<td colspan="4" style="text-align: center;">Please select a category above to view and update products</td>`;
+    tableBody.appendChild(noItemsRow);
+    return;
+  }
   products.forEach((product) => {
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -369,40 +439,26 @@ function populateDiscountTable(discounts) {
   if (!tableBody) return;
 
   tableBody.innerHTML = ""; // Clear existing rows
+  if(discounts.length === 0) {
+    //displays message if there's no discounts available
+    const noItemsRow = document.createElement("tr");
+    noItemsRow.innerHTML = `<td colspan="4" style="text-align: center">There are currently no discounted items to display</td>`;
+    tableBody.appendChild(noItemsRow);
+    return;
+  }
   discounts.forEach((discount) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-            <td>${discount.product || discount.id}</td>
-            <td>${discount.discount}</td>
-            <td>${new Date(discount.validUntil).toLocaleDateString()}</td>
+            <td>${discount.name}</td>
+            <td>${discount.discount_percentage}%</td>
+            <td>${new Date(discount.discount_valid_until).toLocaleDateString()}</td>
             <td>
                 <button class="product-action-btn edit" onclick="editDiscount('${discount.id}')">Edit</button>
-                <button class="product-action-btn delete" onclick="removeDiscount('${
-                  discount.id
-                }')">Remove</button>
+                <button class="product-action-btn delete" onclick="removeDiscount('${discount.id}')">Remove</button>
             </td>
         `;
     tableBody.appendChild(row);
   });
 }
 
-async function addDiscount(product, discount, validUntil) {
-  try {
-    const response = await fetch("/api/discounts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ product, discount, validUntil }),
-    });
 
-    if (!response.ok) {
-      throw new Error(`Failed to add discount: ${response.statusText}`);
-    }
-    const { discount: newDiscount } = await response.json();
-    console.log("Discount added successfully: ", newDiscount);
-    fetchDiscounts(); //refreshes discount table after adding the discount
-  } catch (error) {
-    console.error("Error adding discount: ", error);
-  }
-}

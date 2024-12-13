@@ -9,13 +9,10 @@ const {
   addItemToCategory,
 } = require("../clover_api");
 const { Product } = require("../models");
+const {Op} = require("sequelize");
 require("dotenv").config();
 
-//temporary in-memory discount storage to be replaced by database
-const discounts = [
-  { id: 1, product: "CBD Oil", discount: "20%", validUntil: "2024-12-31" },
-  { id: 2, product: "Vape Pen", discount: "10%", validUntil: "2024-12-15" },
-];
+
 
 //auth0 secure admin route
 router.get("/admin", (req, res) => {
@@ -73,48 +70,48 @@ router.post("/update-discount", async (req, res) => {
   }
 });
 
-//Logic for adding a discount
-router.post("/discounts", (req, res) => {
-  try {
-    const { product, discount, validUntil } = req.body;
+// //Logic for adding a discount
+// router.post("/discounts", (req, res) => {
+//   try {
+//     const { product, discount, validUntil } = req.body;
 
-    //validation
-    if (!product || !discount || !validUntil) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Missing one or more required fields...",
-        });
-    }
-    const newDiscount = {
-      id: discounts.length + 1,
-      product,
-      discount,
-      validUntil,
-    };
+//     //validation
+//     if (!product || !discount || !validUntil) {
+//       return res
+//         .status(400)
+//         .json({
+//           success: false,
+//           message: "Missing one or more required fields...",
+//         });
+//     }
+//     const newDiscount = {
+//       id: discounts.length + 1,
+//       product,
+//       discount,
+//       validUntil,
+//     };
 
-    discounts.push(newDiscount);
-    res.json({ success: true, discount: newDiscount });
-  } catch (error) {
-    console.error("Error creating discount: ", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to create new discount..." });
-  }
-});
+//     discounts.push(newDiscount);
+//     res.json({ success: true, discount: newDiscount });
+//   } catch (error) {
+//     console.error("Error creating discount: ", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Failed to create new discount..." });
+//   }
+// });
 
-//Fetching a list of Discounted items
-router.get("/discounts", (req, res) => {
-  try {
-    res.json({ success: true, discounts });
-  } catch (error) {
-    console.error("Error fetching discounts: ", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch discounts..." });
-  }
-});
+// //Fetching a list of Discounted items
+// router.get("/discounts", (req, res) => {
+//   try {
+//     res.json({ success: true, discounts });
+//   } catch (error) {
+//     console.error("Error fetching discounts: ", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Failed to fetch discounts..." });
+//   }
+// });
 
 //adding new items
 router.post("/items", async (req, res) => {
@@ -234,6 +231,48 @@ router.post("/items/psdb", async (req, res) => {
   } catch (error) {
     console.error("Error adding product to database: ", error);
     res.status(500).json({ error: "Failed to add new product to database..." });
+  }
+});
+
+//get discounted items from database
+router.get("/items/discounted", async (req,res) =>{
+  try{
+    const discountedItems = await Product.findAll({
+      where:{
+        price_discounted: {[Op.not]:null},
+        discount_valid_until: {[Op.gt]: new Date()},
+      },
+    });
+    res.json(discountedItems);
+  }catch(error){
+    console.error("Error fetching discounted items from database: ", error);
+    res.status(500).json({error: "Failed to fetch discounted items from database."});
+  }
+});
+
+//Update an items discount status
+router.post("/update-discount", async (req,res) => {
+  const {itemId, discount_percentage, validUntil} = req.body;
+  try{
+    const product = await Product.findByPk(itemId);
+    if(!product){
+      return res.status(404).json({error:"Product not found."});
+    }
+
+    const discountedPrice = discountPercentage ? Math.round(product.price - (product.price * discount_percentage) / 100) : null;
+
+    await Product.update(
+      {
+        price_discounted: discountedPrice,
+        discount_percentage,
+        discount_valid_until: validUntil,
+      },
+      {where:{id:itemId}}
+    );
+    res.json({message: "Discount applied successfully!"});
+  } catch(error){
+    console.error("Error applying discount: ", error);
+    res.status(500).json({error: "Failed to apply discount."});
   }
 });
 
