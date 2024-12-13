@@ -126,18 +126,37 @@ async function renderCategories(categories) {
 }
 
 
-function openEditModal(product){
+async function openEditModal(product){
   const modal = document.getElementById("edit-item-modal");
   const form = document.getElementById("edit-item-form");
-  //Prefill form
-  document.getElementById("edit-item-name").value = product.name;
-  document.getElementById("edit-item-price").value = (product.price / 100).toFixed(2);
-  document.getElementById("edit-item-stock").value = product.available;
-  
-  //Store prodId for submission
-  form.dataset.productId = product.id;
-  
-  modal.style.display = "flex";
+  try{
+    //Fetch necessary details from the database
+    console.log(product.id);
+    const dbResponse = await fetch(`/api/items/${product.id}/psdb`);
+    if(!dbResponse.ok) throw new Error("Failed to fetch product data from the database.");
+    const dbData = await dbResponse.json();
+
+    //Prefill Clover Fields
+    document.getElementById("edit-item-name").value = product.name;
+    document.getElementById("edit-item-price").value = (product.price / 100).toFixed(2);
+    document.getElementById("edit-item-stock").value = product.available;
+    
+    //Prefill Additional Fields from database
+    document.getElementById("edit-item-description").value = dbData.description || "";
+    document.getElementById("edit-item-tags").value = dbData.tags ? dbData.tags.join(",") : "";
+    document.getElementById("edit-item-color").value = dbData.color || "";
+    document.getElementById("edit-item-size").value = dbData.size || "";
+    document.getElementById("edit-item-featured").value = dbData.is_featured ? "true" : "false";
+
+    //Store prodId for submission
+    form.dataset.productId = product.id;
+    
+    //Show the modal
+    modal.style.display = "flex";
+  }catch(error){
+    console.error("Error opening edit modal: ", error);
+    alert("Failed to load item details. Please refresh the page and try again.");
+  }
 }
 
 document.getElementById("close-edit-modal").addEventListener("click",() =>{
@@ -173,6 +192,7 @@ document.getElementById("edit-item-form").addEventListener("submit", async (e) =
   };
   
   try{
+    //Step 1 for updating clover item
     const cloverFields ={
       name: updatedProduct.name,
       price: updatedProduct.price,
@@ -187,10 +207,13 @@ document.getElementById("edit-item-form").addEventListener("submit", async (e) =
       body:JSON.stringify(cloverFields),
     });
     
-    if(!cloverResponse.ok) throw new Error("Failed to update product in Clover");
-    
+    if(!cloverResponse.ok) {
+      throw new Error("Failed to update product in Clover");
+    }
+
     console.log("Product updated successfully in Clover!");
 
+    //Step 2 for updating database with additional fields
     const dbResponse = await fetch(`/api/items/${productId}/psdb`,{
       method: "PUT",
       headers:{
@@ -198,16 +221,21 @@ document.getElementById("edit-item-form").addEventListener("submit", async (e) =
       },
       body: JSON.stringify(updatedProduct),
     });
-    if(!dbResponse.ok) throw new Error("Failed to update product in Database...");
+
+    if(!dbResponse.ok) {
+      throw new Error("Failed to update product in Database...");
+    }
+
     console.log("Product updated successfully in database!");
 
-    //Close modal and refresh product table
+    //Step 3 for updating and refreshing ui and populating items original category
     document.getElementById("edit-item-modal").style.display = "none";
     const currentCategoryId = document.getElementById("current-category-header").dataset.categoryId;
     const items = await fetchItems(currentCategoryId);
     populateProductTable(items);
   } catch(error){
     console.error("Error updating product: ", error);
+    alert(`Error updating product: ${error.message}`);
   }
 });
 

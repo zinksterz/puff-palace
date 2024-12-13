@@ -187,6 +187,18 @@ router.get("/total-products", (req, res) => {
 
 //Database methods
 
+//Get item from database for update
+router.get("/items/:productId/psdb", async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.productId);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.json(product);
+  } catch (error) {
+    console.error("Error fetching product from database:", error);
+    res.status(500).json({ message: "Failed to fetch product" });
+  }
+});
+
 //Update product in database
 router.put("/items/:id/psdb", async (req, res) => {
   logger.info("!!!! /items/:id/psdb endpoint accessed");
