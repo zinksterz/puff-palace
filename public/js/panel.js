@@ -253,27 +253,59 @@ document.getElementById("add-product-form").addEventListener("submit", async (e)
 
   const categoryId = document.getElementById("current-category-header").dataset.categoryId;
   const categoryName = document.getElementById("current-category").textContent;
+
   const newProduct = {
     name: document.getElementById("add-product-name").value,
     price: parseFloat(document.getElementById("add-product-price").value) * 100,
     available: document.getElementById("add-product-stock").value === "true",
-    categories:  [
-      {
-        id:categoryId,
-        name:categoryName,
-      },
-    ],
+    description: document.getElementById("add-product-description").value,
+    tags: document.getElementById("add-product-tags").value.split(","),
+    color: document.getElementById("add-product-color").value,
+    size: document.getElementById("add-product-size").value,
+    is_featured:
+      document.getElementById("add-product-featured").value === "true",
+    image_url: document.getElementById("add-product-image").value,
+    category_id: categoryId,
   };
+
   try{
-    const response = await fetch("/api/items", {
+    const cloverFields = {
+      name: newProduct.name,
+      price: newProduct.price,
+      available: newProduct.available,
+      categories: [{
+        id: categoryId,
+        name: categoryName,
+      }],
+    };
+
+    const cloverResponse = await fetch("/api/items", {
       method: "POST",
       headers:{
         "content-type": "application/json",
       },
+      body: JSON.stringify(cloverFields),
+    });
+
+    if(!cloverResponse.ok) throw new Error("Failed to add product to Clover!");
+
+    const cloverData = await cloverResponse.json();
+    console.log("Product added successfully!", cloverData);
+
+    newProduct.id = cloverData.id;
+
+    const dbResponse = await fetch("/api/items/psdb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(newProduct),
     });
-    if(!response.ok) throw new Error("Failed to add product");
-    console.log("Product added successfully!");
+
+    if(!dbResponse.ok) throw new Error("Failed to add product to database...");
+
+    console.log("Product successfully added to the database!");
+    
     //Close modal and refresh product table
     document.getElementById("add-product-modal").style.display = "none";
     const items = await fetchItems(categoryId);
