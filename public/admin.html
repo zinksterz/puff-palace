@@ -125,7 +125,7 @@
                     </select>
 
                     <label for="edit-item-tags">Tags (comma separated):</label>
-                    <input type="text" id="edit-item-tags" name="tags" placeholder="sale,hot,holiday,etc"/>
+                    <input type="text" id="edit-item-tags" name="tags" placeholder="e.g. hot,sale,new"/>
 
                     <!-- <label for="edit-item-rating">Rating:</label>
                     <input type="number" id="edit-item-rating" name="rating" step="0.01" min="0" max="5" placeholder="0-5"/> -->
@@ -134,10 +134,10 @@
                     <input type="text" id="edit-item-dimensions" name="dimensions" placeholder="LxHxW" /> -->
 
                     <label for="edit-item-color">Color:</label>
-                    <input type="text" id="edit-item-color" name="color" placeholder="Purple/Watermelon Ice"/>
+                    <input type="text" id="edit-item-color" name="color" placeholder="e.g. purple"/>
 
                     <label for="edit-item-size">Size:</label>
-                    <input type="text" id="edit-item-size" name="size" placeholder="ex: Small/10,000 puffs/2 pack" />
+                    <input type="text" id="edit-item-size" name="size" placeholder="e.g. large, 10-pack" />
 
                     <label for="edit-item-image">Product Image:</label>
                     <input type="file" id="edit-item-image" name="image" accept="image/*"/>
@@ -184,7 +184,7 @@
                 </select>
 
                 <label for="add-product-image">Image:</label>
-                <input type="url" id="add-product-image"/>
+                <input type="file" id="add-product-image" name="image" accep="image/*"/>
                 <button type="submit" class="save-changes-btn">Save Product</button>
             </form>
         </div>

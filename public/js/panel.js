@@ -256,7 +256,7 @@ document.getElementById("add-product-form").addEventListener("submit", async (e)
 
   const newProduct = {
     name: document.getElementById("add-product-name").value,
-    price: parseFloat(document.getElementById("add-product-price").value) * 100,
+    price: Math.round(parseFloat(document.getElementById("add-product-price").value) * 100),
     available: document.getElementById("add-product-stock").value === "true",
     description: document.getElementById("add-product-description").value,
     tags: document.getElementById("add-product-tags").value.split(","),
