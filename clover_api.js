@@ -265,20 +265,42 @@ async function getTotalProductsCount() {
     throw error;
   }
 }
-//   try{
-//     const response = await axios.get(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
-//         },
-//       }
-//     );
-//     return response.data.elements.length; //adjust on actual data response
-//   }catch(error){
-//     console.error("Error fetching total products count: ", error);
-//     throw error;
-//   }
-// }
+
+//Methods handling db integration 
+async function fetchAllItems() {
+  const baseUrl = `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`;
+  const items = [];
+  let offset = 0;
+  const limit = 100;
+  let hasNextPage = true;
+
+  try{
+    while(hasNextPage){
+      const url = `${baseUrl}?limit=${limit}&offset=${offset}`;
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+      //add items to array
+      items.push(...response.data.elements);
+      //Check for next page
+      if(response.data.elements.length < limit){
+        hasNextPage = false;
+      } else{
+        offset += limit;
+      }
+    }
+    console.log("Items length: ", items.length);
+    return items;
+  }catch(error){
+    console.error("Error fetching items from Clover API: ", error.message);
+    throw error;
+  }
+}
+
+
 
 module.exports = {
   getMerchantData,
@@ -291,4 +313,5 @@ module.exports = {
   addItemToDatabase,
   addItemToCategory,
   getTotalProductsCount,
+  fetchAllItems,
 };
