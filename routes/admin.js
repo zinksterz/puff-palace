@@ -3,6 +3,7 @@ const router = express.Router();
 const logger = require("../utils/logger");
 const {getCachedTotalProducts} = require("../utils/cacheHandler");
 const {updateItemInDatabase, deleteItemFromDatabase, addItemToDatabase, addItemToCategory} = require("../clover_api");
+const {Product} = require("../models");
 require("dotenv").config();
 
 //temporary in-memory discount storage to be replaced by database
@@ -166,5 +167,35 @@ router.get("/total-products", (req, res) => {
   }
 });
 
+
+
+
+
+
+
+
+
+//Database methods
+
+//Update product in database
+router.put("/items/:id/psdb", async(req,res) =>{
+  logger.info("!!!! /items/:id/psdb endpoint accessed");
+  const productId = req.params.id;
+  const updatedData = req.body;
+
+  try{
+    const [updatedRowCount] = await Product.update(updatedData,{
+      where: {id: productId},
+    });
+
+    if(updatedRowCount === 0) {
+      return res.status(404).json({error: "Product not found in database..."});
+    }
+    res.status(200).json({message: "Product updated successfully in database"});
+  }catch(error){
+    console.error("Error updating product in database: ", error);
+    res.status(500).json({error: "Failed to update product in database..."});
+  }
+});
 
 module.exports = router;

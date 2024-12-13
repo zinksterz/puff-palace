@@ -157,24 +157,50 @@ document.getElementById("edit-item-form").addEventListener("submit", async (e) =
   
   const form = e.target;
   const productId = form.dataset.productId;
+
+  //Building the updated product object with all fields (including db fields)
   const updatedProduct = {
     name: document.getElementById("edit-item-name").value,
     price: parseFloat(document.getElementById("edit-item-price").value) * 100,
     available: document.getElementById("edit-item-stock").value === "true",
+    description: document.getElementById("edit-item-description").value,
+    tags: document.getElementById("edit-item-tags").value.split(","),
+    color: document.getElementById("edit-item-color").value, // New field
+    size: document.getElementById("edit-item-size").value, // New field
+    is_featured: document.getElementById("edit-item-featured").value === "true", // New field
+    image_url: document.getElementById("edit-item-image").value,
+    category_id: document.getElementById("current-category-header").dataset.categoryId,
   };
   
   try{
-    const response = await fetch(`/api/items/${productId}`,{
+    const cloverFields ={
+      name: updatedProduct.name,
+      price: updatedProduct.price,
+      available: updatedProduct.available,
+    };
+
+    const cloverResponse = await fetch(`/api/items/${productId}`,{
       method:"PUT",
       headers:{
         "Content-Type": "application/json",
       },
-      body:JSON.stringify(updatedProduct),
+      body:JSON.stringify(cloverFields),
     });
     
-    if(!response.ok) throw new Error("Failed to update product");
+    if(!cloverResponse.ok) throw new Error("Failed to update product in Clover");
     
-    console.log("Product updated successfully!");
+    console.log("Product updated successfully in Clover!");
+
+    const dbResponse = await fetch(`/api/items/${productId}/psdb`,{
+      method: "PUT",
+      headers:{
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedProduct),
+    });
+    if(!dbResponse.ok) throw new Error("Failed to update product in Database...");
+    console.log("Product updated successfully in database!");
+
     //Close modal and refresh product table
     document.getElementById("edit-item-modal").style.display = "none";
     const currentCategoryId = document.getElementById("current-category-header").dataset.categoryId;
