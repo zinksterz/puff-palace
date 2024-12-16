@@ -377,6 +377,7 @@ nav li:first-child{
 }
 
 .modal{
+    display:none;
     position: fixed;
     top: 0;
     left: 0;
@@ -390,6 +391,11 @@ nav li:first-child{
     visibility: hidden; /*Perhaps this can be removed or the .hidden can be removed (in this case need to refactor code in items.js) */
     opacity: 0;
     transition: visibility 0s, opacity 0.3s ease;
+}
+
+.modal.show{
+    display:flex;
+    opacity: 1;
 }
 
 .modal:not(.hidden){
@@ -406,6 +412,7 @@ nav li:first-child{
     text-align:center;
     position:relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: fadeIn 0.4s ease-in-out;
 }
 
 .close-button{
@@ -711,7 +718,8 @@ td button{
 
 /* Modal Styling */
 #add-product-modal,
-#edit-item-modal{
+#edit-item-modal,
+#discount-modal{
     display:none;
     position:fixed;
     z-index:1000;

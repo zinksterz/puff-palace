@@ -252,23 +252,25 @@ router.get("/items/discounted", async (req,res) =>{
 
 //Update an items discount status
 router.post("/update-discount", async (req,res) => {
-  const {itemId, discount_percentage, validUntil} = req.body;
+  const {itemId, discountPercentage, validUntil} = req.body;
+  console.log("Received discount payload:", {itemId, discountPercentage, validUntil} );
   try{
     const product = await Product.findByPk(itemId);
     if(!product){
       return res.status(404).json({error:"Product not found."});
     }
 
-    const discountedPrice = discountPercentage ? Math.round(product.price - (product.price * discount_percentage) / 100) : null;
-
+    const discountedPrice = discountPercentage ? Math.round(product.price - (product.price * discountPercentage) / 100) : null;
+    console.log("Discounted price: ", discountedPrice);
     await Product.update(
       {
         price_discounted: discountedPrice,
-        discount_percentage,
+        discount_percentage: discountPercentage,
         discount_valid_until: validUntil,
       },
       {where:{id:itemId}}
     );
+    
     res.json({message: "Discount applied successfully!"});
   } catch(error){
     console.error("Error applying discount: ", error);
@@ -284,12 +286,12 @@ router.post("/update-category-discount", async(req,res) =>{
     if(!products.length) return res.status(404).json({error: "No products found in category."});
 
     const updates = products.map((product) => {
-      const discountedPrice = Math.round(product.price - (product.price * discount_percentage) / 100);
+      const discountedPrice = Math.round(product.price - (product.price * discountPercentage) / 100);
       return Product.update(
         {
           price_discounted: discountedPrice,
-          discount_percentage,
-          discount_valid_until,
+          discount_percentage: discountPercentage,
+          discount_valid_until: validUntil,
         },
         {where:{id: product.id}}
       );

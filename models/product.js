@@ -47,6 +47,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     color: DataTypes.STRING,
     size: DataTypes.STRING,
+    discount_valid_until: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 'Product',
