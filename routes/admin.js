@@ -276,4 +276,30 @@ router.post("/update-discount", async (req,res) => {
   }
 });
 
+//Discount an entire category
+router.post("/update-category-discount", async(req,res) =>{
+  const {categoryId, discountPercentage, validUntil } = req.body;
+  try{
+    const products = await Product.findAll({where:{category_id: categoryId}});
+    if(!products.length) return res.status(404).json({error: "No products found in category."});
+
+    const updates = products.map((product) => {
+      const discountedPrice = Math.round(product.price - (product.price * discount_percentage) / 100);
+      return Product.update(
+        {
+          price_discounted: discountedPrice,
+          discount_percentage,
+          discount_valid_until,
+        },
+        {where:{id: product.id}}
+      );
+    });
+    await Promise.all(updates);
+    res.json({message:"Category discount applied successfully!"});
+  } catch(error){
+    console.error("Error applying category discount: ", error);
+    res.status(500).json({error: "Failed to apply category discount."});
+  }
+});
+
 module.exports = router;

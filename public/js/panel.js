@@ -7,13 +7,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const discounts = await fetchDiscounts();
     if (discounts) populateDiscountTable(discounts);
 
-    const discountForm = document.getElementById("discount-form");
-    if (discountForm) {
-      discountForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        applyDiscount();
-      });
-    }
+    // const discountForm = document.getElementById("discount-form");
+    // if (discountForm) {
+    //   discountForm.addEventListener("submit", (e) => {
+    //     e.preventDefault();
+    //     applyDiscount();
+    //   });
+    // }
 
     //initializes product table with a message
     populateProductTable([]);
@@ -106,6 +106,41 @@ async function editDiscount(discountId){
     alert("Failed to edit discount.");
   }
 }
+
+//Applying a discount to categories
+document.getElementById("discount-form").addEventListener("submit", async (e) =>{
+  e.preventDefault();
+  const discountPercentage = document.getElementById("discount-percentage").value;
+  const validUntil = document.getElementById("discount-valid-until").value;
+  const isCategory = e.target.dataset.type === "category";
+
+  try{
+    const endpoint = isCategory ? "/update-category-discount" : "/update-discount";
+    const payload = {
+      discountPercentage: parseFloat(discountPercentage),
+      validUntil,
+    };
+
+    if(isCategory) {
+      payload.categoryId = e.target.dataset.categoryId;
+    } else {
+      payload.itemId = e.target.dataset.itemId;
+    }
+
+    const response = await fetch(endpoint,{
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload),
+    });
+    if(!response.ok) throw new Error("Failed to apply discount");
+    alert("Discount applied successfully!");
+    const discounts = await fetchDiscounts();
+    populateDiscountTable(discounts);
+  }catch(error){
+    console.error("Error applying discount:", error);
+    alert("Failed to apply discount");
+  }
+});
 
 //Remove a discount
 async function removeDiscount(discountId) {
