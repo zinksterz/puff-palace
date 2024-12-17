@@ -1,3 +1,20 @@
+//Cached DOM elements 
+const productTableBody = document.getElementById("product-table-body");
+const discountForm = document.getElementById("discount-form");
+const discountModal = document.getElementById("discount-modal");
+const editModal = document.getElementById("edit-item-modal");
+const addProductModal = document.getElementById("add-product-modal");
+
+function showModal(modal) {
+  modal.classList.add("show");
+  modal.style.display = "flex";
+}
+
+function hideModal(modal) {
+  modal.classList.remove("show");
+  modal.style.display = "none";
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const categories = await fetchCategories();
@@ -10,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     //initializes product table with a message
     populateProductTable([]);
 
-    const tableBody = document.getElementById("product-table-body");
+    const tableBody = productTableBody;
     if(tableBody){
       tableBody.addEventListener("click", (e) =>{
         const productId = e.target.dataset.id;
@@ -22,12 +39,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         else if(e.target.classList.contains("discount")){
           const productId = e.target.dataset.id;
-          const modal = document.getElementById("discount-modal");
-          const form = document.getElementById("discount-form");
 
-          form.dataset.type = "item";
-          form.dataset.itemId = productId;
-          modal.style.display = "flex";
+          discountForm.dataset.type = "item";
+          discountForm.dataset.itemId = productId;
+          showModal(discountModal);
         }
       });
     }
@@ -149,8 +164,6 @@ async function editDiscount(discountId){
 // });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const discountForm = document.getElementById("discount-form");
-  const discountModal = document.getElementById("discount-modal");
 
   // Form submission logic
   discountForm.addEventListener("submit", async (e) => {
@@ -213,22 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Failed to apply discount. Please try again.");
     }
   });
-
-  // Close modal logic
-  const closeBtn = document.getElementById("close-discount-modal");
-  closeBtn.addEventListener("click", () => {
-    discountForm.reset();
-    discountModal.classList.remove("show");
-    discountModal.style.display = "none";
-  });
 });
-
+  // Close modal logic
+  document.getElementById("close-discount-modal").addEventListener("click", () => {
+    hideModal(discountModal);
+  });
 
 // Open discount modal for item
 document.querySelectorAll(".apply-discount-btn").forEach((button) => {
   button.addEventListener("click", (e) =>{
-    const modal = document.getElementById("discount-modal");
-    modal.classList.add("show"); // Show modal
+    showModal(discountModal);
   });
 });
 
@@ -241,30 +248,22 @@ document.getElementById("apply-category-discount-btn").addEventListener("click",
     return;
   }
 
-  const modal = document.getElementById("discount-modal");
-  const form = document.getElementById("discount-form");
+  discountForm.dataset.type = "category";
+  discountForm.dataset.categoryId = categoryId;
 
-  form.dataset.type = "category";
-  form.dataset.categoryId = categoryId;
-
-  modal.classList.add("show");
+  showModal(discountModal);
 });
 
 // Close modal when clicking the close button
 document.getElementById("close-discount-modal").addEventListener("click", () => {
-  const modal = document.getElementById("discount-modal");
-  const form = document.getElementById("discount-form");
-
-  form.reset();
-  modal.classList.remove("show"); // Hide modal
+  discountForm.reset();
+  hideModal(discountModal);
 });
 
 // Close modal when clicking outside of it
 window.onclick = (event) => {
-  const modal = document.getElementById("discount-modal");
-  if (event.target === modal) {
-    modal.classList.remove("show"); // Hide modal
-    modal.style.display = "none";
+  if (event.target === discountModal) {
+    hideModal(discountModal);
   }
 };
 
@@ -350,7 +349,6 @@ async function renderCategories(categories) {
 
 
 async function openEditModal(product){
-  const modal = document.getElementById("edit-item-modal");
   const form = document.getElementById("edit-item-form");
   try{
     //Fetch necessary details from the database
@@ -375,7 +373,7 @@ async function openEditModal(product){
     form.dataset.productId = product.id;
     
     //Show the modal
-    modal.style.display = "flex";
+    showModal(editModal);
   }catch(error){
     console.error("Error opening edit modal: ", error);
     alert("Failed to load item details. Please refresh the page and try again.");
@@ -383,13 +381,11 @@ async function openEditModal(product){
 }
 
 document.getElementById("close-edit-modal").addEventListener("click",() =>{
-  const modal = document.getElementById("edit-item-modal");
-  modal.style.display = "none";
+  hideModal(editModal);
 });
-window.onclick = function (event) {
-  const modal = document.getElementById("edit-item-modal");
-  if(event.target === modal){
-    modal.style.display = "none";
+window.onclick = (event) => {
+  if(event.target === editModal){
+    hideModal(editModal);
   }
 };
 
@@ -452,7 +448,7 @@ document.getElementById("edit-item-form").addEventListener("submit", async (e) =
     console.log("Product updated successfully in database!");
 
     //Step 3 for updating and refreshing ui and populating items original category
-    document.getElementById("edit-item-modal").style.display = "none";
+    hideModal(editModal);
     const currentCategoryId = document.getElementById("current-category-header").dataset.categoryId;
     const items = await fetchItems(currentCategoryId);
     populateProductTable(items);
@@ -484,18 +480,15 @@ async function deleteProduct(productId){
 
 //Open add product modal
 document.getElementById("add-product-btn").addEventListener("click", () =>{
-  const modal = document.getElementById("add-product-modal");
-  modal.style.display = "flex";
+  showModal(addProductModal);
 });
 //Close add product modal
 document.getElementById("close-add-modal").addEventListener("click", () => {
-  const modal = document.getElementById("add-product-modal");
-  modal.style.display = "none";
+  hideModal(addProductModal);
 });
-window.onclick = function (event){
-  const modal = document.getElementById("add-product-modal");
-  if(event.target === modal){
-    modal.style.display = "none";
+window.onclick = (event) => {
+  if(event.target === addProductModal){
+    hideModal(addProductModal);
   }
 };
 
@@ -558,7 +551,7 @@ document.getElementById("add-product-form").addEventListener("submit", async (e)
     console.log("Product successfully added to the database!");
     
     //Close modal and refresh product table
-    document.getElementById("add-product-modal").style.display = "none";
+    hideModal(addProductModal);
     const items = await fetchItems(categoryId);
     populateProductTable(items);
   } catch(error){
@@ -568,7 +561,7 @@ document.getElementById("add-product-form").addEventListener("submit", async (e)
 });
 
 function populateProductTable(products) {
-  const tableBody = document.getElementById("product-table-body");
+  const tableBody = productTableBody;
   if (!tableBody) return;
 
   tableBody.innerHTML = ""; // Clear existing rows
