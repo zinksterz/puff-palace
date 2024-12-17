@@ -225,9 +225,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // Open discount modal for item
-document.getElementById("apply-discount-btn").addEventListener("click", () => {
-  const modal = document.getElementById("discount-modal");
-  modal.classList.add("show"); // Show modal
+document.querySelectorAll(".apply-discount-btn").forEach((button) => {
+  button.addEventListener("click", (e) =>{
+    const modal = document.getElementById("discount-modal");
+    modal.classList.add("show"); // Show modal
+  });
 });
 
 //Open category discount modal
@@ -587,7 +589,7 @@ function populateProductTable(products) {
             <td>
                 <button class="product-action-btn edit" data-product='${JSON.stringify(product)}'>Edit</button>
                 <button class="product-action-btn delete" data-id="${product.id}">Delete</button>
-                <button class="product-action-btn discount" id="apply-discount-btn" data-id="${product.id}">Discount</button>
+                <button class="product-action-btn discount apply-discount-btn" data-id="${product.id}">Discount</button>
             </td>
         `;
     tableBody.appendChild(row);
