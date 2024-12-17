@@ -1,4 +1,4 @@
-//Cached DOM elements 
+//Cached DOM elements
 const productTableBody = document.getElementById("product-table-body");
 const discountForm = document.getElementById("discount-form");
 const discountModal = document.getElementById("discount-modal");
@@ -6,7 +6,6 @@ const editModal = document.getElementById("edit-item-modal");
 const addProductModal = document.getElementById("add-product-modal");
 const editDiscountModal = document.getElementById("edit-discount-modal");
 const editDiscountForm = document.getElementById("edit-discount-form");
-
 
 function showModal(modal) {
   modal.classList.add("show");
@@ -113,7 +112,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (error) {
     console.error("Error initializing admin panel: ", error);
   }
-
 });
 
 async function fetchCategories() {
@@ -146,7 +144,8 @@ async function fetchItems(categoryId = "") {
 //Fetching discounts
 async function fetchDiscounts() {
   const discountTable = document.getElementById("discount-table-body");
-  discountTable.innerHTML = "<tr><td colspan='4' style='text-align: center;'>Loading...</td></tr>";
+  discountTable.innerHTML =
+    "<tr><td colspan='4' style='text-align: center;'>Loading...</td></tr>";
   try {
     const response = await fetch("/api/items/discounted");
     if (!response.ok) throw new Error(`Failed to fetch discounted items.`);
@@ -154,7 +153,8 @@ async function fetchDiscounts() {
     return discounts;
   } catch (error) {
     console.error("Error fetching discounts: ", error);
-    discountTable.innerHTML = "<tr><td colspan='4' style='text-align: center;'>Error loading discounts.</td></tr>";
+    discountTable.innerHTML =
+      "<tr><td colspan='4' style='text-align: center;'>Error loading discounts.</td></tr>";
     return [];
   }
 }
@@ -162,20 +162,23 @@ async function fetchDiscounts() {
 //Edit discounts
 let currentDiscountId = null;
 
-async function editDiscount(discountId){
-  try{
+async function editDiscount(discountId) {
+  if(!discountId) return;
+  try {
     currentDiscountId = discountId;
-    
+
     const response = await fetch(`/api/items/discounted/${discountId}`);
-    if(!response.ok) throw new Error("Failed to fetch discount details.");
+    if (!response.ok) throw new Error("Failed to fetch discount details.");
 
     const discount = await response.json();
 
-    document.getElementById("edit-discount-percentage").value = discount.discount_percentage;
-    document.getElementById("edit-discount-valid-until").value = discount.discount_valid_until;
+    document.getElementById("edit-discount-percentage").value =
+      discount.discount_percentage;
+    document.getElementById("edit-discount-valid-until").value =
+      discount.discount_valid_until;
 
     showModal(editDiscountModal);
-  }catch(error){
+  } catch (error) {
     console.error("Error fetching discount details: ", error);
     alert("Failed to load discount details.");
   }
@@ -183,14 +186,20 @@ async function editDiscount(discountId){
 
 editDiscountForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const discountPercentage = parseFloat(document.getElementById("edit-discount-percentage").value);
+  const discountPercentage = parseFloat(
+    document.getElementById("edit-discount-percentage").value
+  );
   const validUntil = document.getElementById("edit-discount-valid-until").value;
 
-  if(isNaN(discountPercentage) || discountPercentage <= 0 || discountPercentage > 100) {
+  if (
+    isNaN(discountPercentage) ||
+    discountPercentage <= 0 ||
+    discountPercentage > 100
+  ) {
     alert("Please enter a valid discount percentage (1-100).");
     return;
   }
-  if(!validUntil){
+  if (!validUntil) {
     alert("Please specify a valid end date.");
     return;
   }
@@ -222,42 +231,51 @@ editDiscountForm.addEventListener("submit", async (e) => {
 });
 
 //Close Edit Discount modal
-document.getElementById("close-edit-discount-modal").addEventListener("click", () =>{
-  hideModal(editDiscountModal);
-});
+document
+  .getElementById("close-edit-discount-modal")
+  .addEventListener("click", () => {
+    hideModal(editDiscountModal);
+  });
 
 // Close modal logic
-document.getElementById("close-discount-modal").addEventListener("click", () => {
-   hideModal(discountModal);
-});
+document
+  .getElementById("close-discount-modal")
+  .addEventListener("click", () => {
+    hideModal(discountModal);
+  });
 
 // Open discount modal for item
 document.querySelectorAll(".apply-discount-btn").forEach((button) => {
-  button.addEventListener("click", (e) =>{
+  button.addEventListener("click", (e) => {
     showModal(discountModal);
   });
 });
 
 //Open category discount modal
-document.getElementById("apply-category-discount-btn").addEventListener("click", () =>{
-  const categoryId = document.getElementById("current-category-header").dataset.categoryId;
+document
+  .getElementById("apply-category-discount-btn")
+  .addEventListener("click", () => {
+    const categoryId = document.getElementById("current-category-header")
+      .dataset.categoryId;
 
-  if(!categoryId) {
-    alert("Please select a category before applying a discount.");
-    return;
-  }
+    if (!categoryId) {
+      alert("Please select a category before applying a discount.");
+      return;
+    }
 
-  discountForm.dataset.type = "category";
-  discountForm.dataset.categoryId = categoryId;
+    discountForm.dataset.type = "category";
+    discountForm.dataset.categoryId = categoryId;
 
-  showModal(discountModal);
-});
+    showModal(discountModal);
+  });
 
 // Close modal when clicking the close button
-document.getElementById("close-discount-modal").addEventListener("click", () => {
-  discountForm.reset();
-  hideModal(discountModal);
-});
+document
+  .getElementById("close-discount-modal")
+  .addEventListener("click", () => {
+    discountForm.reset();
+    hideModal(discountModal);
+  });
 
 // Close modal when clicking outside of it
 window.onclick = (event) => {
@@ -306,7 +324,7 @@ async function handleCategorySelection(categoryId, categoryName, categoryCard) {
     currentCategory.textContent = categoryName;
     categoryHeader.dataset.categoryId = categoryId;
     categoryHeader.style.display = "block";
-    
+
     //Update selected card with item count
     const itemCount = items.length;
     const itemCountDisplay = categoryCard.querySelector(".item-count");
@@ -321,7 +339,7 @@ async function renderCategories(categories) {
   const categoryContainer = document.getElementById("category-container");
   if (!categoryContainer) return;
   //sort categories alphabetically
-  categories.sort((a,b) => a.name.localeCompare(b.name));
+  categories.sort((a, b) => a.name.localeCompare(b.name));
   categoryContainer.innerHTML = "";
   categories.forEach((category) => {
     const categoryCard = document.createElement("div");
@@ -346,139 +364,156 @@ async function renderCategories(categories) {
   });
 }
 
-
-async function openEditModal(product){
+async function openEditModal(product) {
   const form = document.getElementById("edit-item-form");
-  try{
+  try {
     //Fetch necessary details from the database
     console.log(product.id);
     const dbResponse = await fetch(`/api/items/${product.id}/psdb`);
-    if(!dbResponse.ok) throw new Error("Failed to fetch product data from the database.");
+    if (!dbResponse.ok)
+      throw new Error("Failed to fetch product data from the database.");
     const dbData = await dbResponse.json();
 
     //Prefill Clover Fields
     document.getElementById("edit-item-name").value = product.name;
-    document.getElementById("edit-item-price").value = (product.price / 100).toFixed(2);
+    document.getElementById("edit-item-price").value = (
+      product.price / 100
+    ).toFixed(2);
     document.getElementById("edit-item-stock").value = product.available;
-    
+
     //Prefill Additional Fields from database
-    document.getElementById("edit-item-description").value = dbData.description || "";
-    document.getElementById("edit-item-tags").value = dbData.tags ? dbData.tags.join(",") : "";
+    document.getElementById("edit-item-description").value =
+      dbData.description || "";
+    document.getElementById("edit-item-tags").value = dbData.tags
+      ? dbData.tags.join(",")
+      : "";
     document.getElementById("edit-item-color").value = dbData.color || "";
     document.getElementById("edit-item-size").value = dbData.size || "";
-    document.getElementById("edit-item-featured").value = dbData.is_featured ? "true" : "false";
+    document.getElementById("edit-item-featured").value = dbData.is_featured
+      ? "true"
+      : "false";
 
     //Store prodId for submission
     form.dataset.productId = product.id;
-    
+
     //Show the modal
     showModal(editModal);
-  }catch(error){
+  } catch (error) {
     console.error("Error opening edit modal: ", error);
-    alert("Failed to load item details. Please refresh the page and try again.");
+    alert(
+      "Failed to load item details. Please refresh the page and try again."
+    );
   }
 }
 
-document.getElementById("close-edit-modal").addEventListener("click",() =>{
+document.getElementById("close-edit-modal").addEventListener("click", () => {
   hideModal(editModal);
 });
 window.onclick = (event) => {
-  if(event.target === editModal){
+  if (event.target === editModal) {
     hideModal(editModal);
   }
 };
 
-document.getElementById("edit-item-form").addEventListener("submit", async (e) =>{
-  e.preventDefault();
-  
-  
-  const form = e.target;
-  const productId = form.dataset.productId;
+document
+  .getElementById("edit-item-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  //Building the updated product object with all fields (including db fields)
-  const updatedProduct = {
-    name: document.getElementById("edit-item-name").value,
-    price: parseFloat(document.getElementById("edit-item-price").value) * 100,
-    available: document.getElementById("edit-item-stock").value === "true",
-    description: document.getElementById("edit-item-description").value,
-    tags: document.getElementById("edit-item-tags").value.split(","),
-    color: document.getElementById("edit-item-color").value, // New field
-    size: document.getElementById("edit-item-size").value, // New field
-    is_featured: document.getElementById("edit-item-featured").value === "true", // New field
-    image_url: document.getElementById("edit-item-image").value,
-    category_id: document.getElementById("current-category-header").dataset.categoryId,
-  };
-  
-  try{
-    //Step 1 for updating clover item
-    const cloverFields ={
-      name: updatedProduct.name,
-      price: updatedProduct.price,
-      available: updatedProduct.available,
+    const form = e.target;
+    const productId = form.dataset.productId;
+
+    //Building the updated product object with all fields (including db fields)
+    const updatedProduct = {
+      name: document.getElementById("edit-item-name").value,
+      price: parseFloat(document.getElementById("edit-item-price").value) * 100,
+      available: document.getElementById("edit-item-stock").value === "true",
+      description: document.getElementById("edit-item-description").value,
+      tags: document.getElementById("edit-item-tags").value.split(","),
+      color: document.getElementById("edit-item-color").value, // New field
+      size: document.getElementById("edit-item-size").value, // New field
+      is_featured:
+        document.getElementById("edit-item-featured").value === "true", // New field
+      image_url: document.getElementById("edit-item-image").value,
+      category_id: document.getElementById("current-category-header").dataset
+        .categoryId,
     };
 
-    const cloverResponse = await fetch(`/api/items/${productId}`,{
-      method:"PUT",
-      headers:{
-        "Content-Type": "application/json",
-      },
-      body:JSON.stringify(cloverFields),
-    });
-    
-    if(!cloverResponse.ok) {
-      throw new Error("Failed to update product in Clover");
+    try {
+      //Step 1 for updating clover item
+      const cloverFields = {
+        name: updatedProduct.name,
+        price: updatedProduct.price,
+        available: updatedProduct.available,
+      };
+
+      const cloverResponse = await fetch(`/api/items/${productId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cloverFields),
+      });
+
+      if (!cloverResponse.ok) {
+        throw new Error("Failed to update product in Clover");
+      }
+
+      console.log("Product updated successfully in Clover!");
+
+      //Step 2 for updating database with additional fields
+      const dbResponse = await fetch(`/api/items/${productId}/psdb`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedProduct),
+      });
+
+      if (!dbResponse.ok) {
+        throw new Error("Failed to update product in Database...");
+      }
+
+      console.log("Product updated successfully in database!");
+
+      //Step 3 for updating and refreshing ui and populating items original category
+      hideModal(editModal);
+      const currentCategoryId = document.getElementById(
+        "current-category-header"
+      ).dataset.categoryId;
+      const items = await fetchItems(currentCategoryId);
+      populateProductTable(items);
+    } catch (error) {
+      console.error("Error updating product: ", error);
+      alert(`Error updating product: ${error.message}`);
     }
+  });
 
-    console.log("Product updated successfully in Clover!");
+async function deleteProduct(productId) {
+  try {
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!confirmDelete) return;
 
-    //Step 2 for updating database with additional fields
-    const dbResponse = await fetch(`/api/items/${productId}/psdb`,{
-      method: "PUT",
-      headers:{
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedProduct),
-    });
-
-    if(!dbResponse.ok) {
-      throw new Error("Failed to update product in Database...");
-    }
-
-    console.log("Product updated successfully in database!");
-
-    //Step 3 for updating and refreshing ui and populating items original category
-    hideModal(editModal);
-    const currentCategoryId = document.getElementById("current-category-header").dataset.categoryId;
-    const items = await fetchItems(currentCategoryId);
-    populateProductTable(items);
-  } catch(error){
-    console.error("Error updating product: ", error);
-    alert(`Error updating product: ${error.message}`);
-  }
-});
-
-async function deleteProduct(productId){
-  try{
-    const confirmDelete = confirm("Are you sure you want to delete this product?");
-    if(!confirmDelete) return;
-
-    const response = await fetch(`/api/items/${productId}`,{
+    const response = await fetch(`/api/items/${productId}`, {
       method: "DELETE",
     });
-    if(!response.ok) throw new Error("Failed to delete product");
+    if (!response.ok) throw new Error("Failed to delete product");
     console.log("Product deleted successfully!");
     //refresh product table
-    const currentCategoryId = document.getElementById("current-category-header").dataset.categoryId;
+    const currentCategoryId = document.getElementById("current-category-header")
+      .dataset.categoryId;
     const items = await fetchItems(currentCategoryId);
     populateProductTable(items);
-  }catch(error){
+  } catch (error) {
     console.error("Error deleting product: ", error);
     alert("Failed to delete the product. Please try again.");
   }
 }
 
 //Open add product modal
-document.getElementById("add-product-btn").addEventListener("click", () =>{
+document.getElementById("add-product-btn").addEventListener("click", () => {
   showModal(addProductModal);
 });
 //Close add product modal
@@ -486,78 +521,88 @@ document.getElementById("close-add-modal").addEventListener("click", () => {
   hideModal(addProductModal);
 });
 window.onclick = (event) => {
-  if(event.target === addProductModal){
+  if (event.target === addProductModal) {
     hideModal(addProductModal);
   }
 };
 
-document.getElementById("add-product-form").addEventListener("submit", async (e) =>{
-  e.preventDefault();
+document
+  .getElementById("add-product-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const categoryId = document.getElementById("current-category-header").dataset.categoryId;
-  const categoryName = document.getElementById("current-category").textContent;
+    const categoryId = document.getElementById("current-category-header")
+      .dataset.categoryId;
+    const categoryName =
+      document.getElementById("current-category").textContent;
 
-  const newProduct = {
-    name: document.getElementById("add-product-name").value,
-    price: Math.round(parseFloat(document.getElementById("add-product-price").value) * 100),
-    available: document.getElementById("add-product-stock").value === "true",
-    description: document.getElementById("add-product-description").value,
-    tags: document.getElementById("add-product-tags").value.split(","),
-    color: document.getElementById("add-product-color").value,
-    size: document.getElementById("add-product-size").value,
-    is_featured:
-      document.getElementById("add-product-featured").value === "true",
-    image_url: document.getElementById("add-product-image").value,
-    category_id: categoryId,
-  };
-
-  try{
-    const cloverFields = {
-      name: newProduct.name,
-      price: newProduct.price,
-      available: newProduct.available,
-      categories: [{
-        id: categoryId,
-        name: categoryName,
-      }],
+    const newProduct = {
+      name: document.getElementById("add-product-name").value,
+      price: Math.round(
+        parseFloat(document.getElementById("add-product-price").value) * 100
+      ),
+      available: document.getElementById("add-product-stock").value === "true",
+      description: document.getElementById("add-product-description").value,
+      tags: document.getElementById("add-product-tags").value.split(","),
+      color: document.getElementById("add-product-color").value,
+      size: document.getElementById("add-product-size").value,
+      is_featured:
+        document.getElementById("add-product-featured").value === "true",
+      image_url: document.getElementById("add-product-image").value,
+      category_id: categoryId,
     };
 
-    const cloverResponse = await fetch("/api/items", {
-      method: "POST",
-      headers:{
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(cloverFields),
-    });
+    try {
+      const cloverFields = {
+        name: newProduct.name,
+        price: newProduct.price,
+        available: newProduct.available,
+        categories: [
+          {
+            id: categoryId,
+            name: categoryName,
+          },
+        ],
+      };
 
-    if(!cloverResponse.ok) throw new Error("Failed to add product to Clover!");
+      const cloverResponse = await fetch("/api/items", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(cloverFields),
+      });
 
-    const cloverData = await cloverResponse.json();
-    console.log("Product added successfully!", cloverData);
+      if (!cloverResponse.ok)
+        throw new Error("Failed to add product to Clover!");
 
-    newProduct.id = cloverData.id;
+      const cloverData = await cloverResponse.json();
+      console.log("Product added successfully!", cloverData);
 
-    const dbResponse = await fetch("/api/items/psdb", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newProduct),
-    });
+      newProduct.id = cloverData.id;
 
-    if(!dbResponse.ok) throw new Error("Failed to add product to database...");
+      const dbResponse = await fetch("/api/items/psdb", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProduct),
+      });
 
-    console.log("Product successfully added to the database!");
-    
-    //Close modal and refresh product table
-    hideModal(addProductModal);
-    const items = await fetchItems(categoryId);
-    populateProductTable(items);
-  } catch(error){
-    console.error("Error adding product: ", error);
-    alert("Failed to add the product. Please try again.");
-  }
-});
+      if (!dbResponse.ok)
+        throw new Error("Failed to add product to database...");
+
+      console.log("Product successfully added to the database!");
+
+      //Close modal and refresh product table
+      hideModal(addProductModal);
+      const items = await fetchItems(categoryId);
+      populateProductTable(items);
+    } catch (error) {
+      console.error("Error adding product: ", error);
+      alert("Failed to add the product. Please try again.");
+    }
+  });
 
 function populateProductTable(products) {
   const tableBody = productTableBody;
@@ -565,7 +610,7 @@ function populateProductTable(products) {
 
   tableBody.innerHTML = ""; // Clear existing rows
 
-  if(!products || products.length === 0) {
+  if (!products || products.length === 0) {
     //Display message when no products are available
     const noItemsRow = document.createElement("tr");
     noItemsRow.innerHTML = `<td colspan="4" style="text-align: center;">No products found. Please select a category from above.</td>`;
@@ -579,21 +624,27 @@ function populateProductTable(products) {
             <td>${product.available ? "In Stock" : "Out of Stock"}</td> 
             <td>$${(product.price / 100).toFixed(2)}</td>
             <td>
-                <button class="product-action-btn edit" data-product='${JSON.stringify(product)}'>Edit</button>
-                <button class="product-action-btn delete" data-id="${product.id}">Delete</button>
-                <button class="product-action-btn discount apply-discount-btn" data-id="${product.id}">Discount</button>
+                <button class="product-action-btn edit" data-product='${JSON.stringify(
+                  product
+                )}'>Edit</button>
+                <button class="product-action-btn delete" data-id="${
+                  product.id
+                }">Delete</button>
+                <button class="product-action-btn discount apply-discount-btn" data-id="${
+                  product.id
+                }">Discount</button>
             </td>
         `;
     tableBody.appendChild(row);
   });
 }
-  
+
 function populateDiscountTable(discounts) {
   const tableBody = document.getElementById("discount-table-body");
   if (!tableBody) return;
 
   tableBody.innerHTML = ""; // Clear existing rows
-  if(discounts.length === 0) {
+  if (discounts.length === 0) {
     //displays message if there's no discounts available
     const noItemsRow = document.createElement("tr");
     noItemsRow.innerHTML = `<td colspan="4" style="text-align: center">There are currently no active discounts to display. You can apply discounts using the product management table.</td>`;
@@ -605,14 +656,27 @@ function populateDiscountTable(discounts) {
     row.innerHTML = `
             <td>${discount.name}</td>
             <td>${discount.discount_percentage}%</td>
-            <td>${new Date(discount.discount_valid_until).toLocaleDateString()}</td>
+            <td>${new Date(
+              discount.discount_valid_until
+            ).toLocaleDateString()}</td>
             <td>
-                <button class="product-action-btn edit" onclick="editDiscount('${discount.id}')">Edit</button>
-                <button class="product-action-btn delete" onclick="removeDiscount('${discount.id}')">Remove</button>
+                <button class="product-action-btn edit" data-id="${
+                  discount.id
+                }">Edit</button>
+                <button class="product-action-btn delete" data-id="${
+                  discount.id
+                }">Remove</button>
             </td>
         `;
     tableBody.appendChild(row);
   });
+  //event delegation
+  tableBody.addEventListener("click", (e) =>{
+    const discountId = e.target.dataset.id;
+    if(e.target.classList.contains("edit")){
+      editDiscount(discountId);
+    } else if(e.target.classList.contains("delete")){
+      removeDiscount(discountId);
+    }
+  });
 }
-
-
