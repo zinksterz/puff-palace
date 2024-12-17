@@ -4,6 +4,9 @@ const discountForm = document.getElementById("discount-form");
 const discountModal = document.getElementById("discount-modal");
 const editModal = document.getElementById("edit-item-modal");
 const addProductModal = document.getElementById("add-product-modal");
+const editDiscountModal = document.getElementById("edit-discount-modal");
+const editDiscountForm = document.getElementById("edit-discount-form");
+
 
 function showModal(modal) {
   modal.classList.add("show");
@@ -28,16 +31,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateProductTable([]);
 
     const tableBody = productTableBody;
-    if(tableBody){
-      tableBody.addEventListener("click", (e) =>{
+    if (tableBody) {
+      tableBody.addEventListener("click", (e) => {
         const productId = e.target.dataset.id;
-        if(e.target.classList.contains("edit")){
+        if (e.target.classList.contains("edit")) {
           const product = JSON.parse(e.target.dataset.product);
           openEditModal(product);
-        } else if(e.target.classList.contains("delete")){
+        } else if (e.target.classList.contains("delete")) {
           deleteProduct(productId);
-        }
-        else if(e.target.classList.contains("discount")){
+        } else if (e.target.classList.contains("discount")) {
           const productId = e.target.dataset.id;
 
           discountForm.dataset.type = "item";
@@ -46,9 +48,72 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
     }
+
+    // Form submission logic
+    discountForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const discountPercentage = parseFloat(
+        document.getElementById("discount-percentage").value
+      );
+      const validUntil = document.getElementById("discount-valid-until").value;
+      const isCategory = e.target.dataset.type === "category";
+
+      if (
+        isNaN(discountPercentage) ||
+        discountPercentage <= 0 ||
+        discountPercentage > 100
+      ) {
+        alert("Please enter a valid discount percentage (1-100).");
+        return;
+      }
+      if (!validUntil) {
+        alert("Please specify a valid end date for the discount.");
+        return;
+      }
+
+      try {
+        const payload = isCategory
+          ? {
+              categoryId: discountForm.dataset.categoryId,
+              discountPercentage,
+              validUntil,
+            }
+          : {
+              itemId: discountForm.dataset.itemId,
+              discountPercentage,
+              validUntil,
+            };
+
+        console.log("Payload being sent:", payload);
+
+        const endpoint = isCategory
+          ? "api/update-category-discount"
+          : "api/update-discount";
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error("Failed to apply discount");
+
+        alert("Discount applied successfully!");
+        discountForm.reset();
+        discountModal.classList.remove("show");
+        discountModal.style.display = "none";
+
+        const discounts = await fetchDiscounts();
+        populateDiscountTable(discounts);
+      } catch (error) {
+        console.error("Error applying discount:", error);
+        alert("Failed to apply discount. Please try again.");
+      }
+    });
   } catch (error) {
     console.error("Error initializing admin panel: ", error);
   }
+
 });
 
 async function fetchCategories() {
@@ -95,142 +160,76 @@ async function fetchDiscounts() {
 }
 
 //Edit discounts
+let currentDiscountId = null;
+
 async function editDiscount(discountId){
-  const newPercentage = prompt("Enter the new discount percentage:");
-  const validUntil = prompt("Enter the date you want this sale to end (YYYY-MM-DD):");
-
-  if(!newPercentage || !validUntil){
-    alert("Both percentage and valid until date are required.");
-    return;
-  }
-
   try{
-    const response = await fetch("/api/update-discount",{
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        itemId: discountId,
-        discount_percentage: parseFloat(newPercentage),
-        validUntil,
-      }),
-    });
-    if(!response.ok) throw new Error("Failed to update discount");
-    alert("Discount updated successfully!");
-    const discounts = await fetchDiscounts();
-    populateDiscountTable(discounts);
+    currentDiscountId = discountId;
+    
+    const response = await fetch(`/api/items/discounted/${discountId}`);
+    if(!response.ok) throw new Error("Failed to fetch discount details.");
+
+    const discount = await response.json();
+
+    document.getElementById("edit-discount-percentage").value = discount.discount_percentage;
+    document.getElementById("edit-discount-valid-until").value = discount.discount_valid_until;
+
+    showModal(editDiscountModal);
   }catch(error){
-    console.error("Error editing discount: ", error);
-    alert("Failed to edit discount.");
+    console.error("Error fetching discount details: ", error);
+    alert("Failed to load discount details.");
   }
 }
 
-//Applying a discount to categories
-// document.getElementById("discount-form").addEventListener("submit", async (e) =>{
-//   e.preventDefault();
-//   const form = e.target;
-//   const discountPercentage = parseFloat(document.getElementById("discount-percentage").value);
-//   const validUntil = document.getElementById("discount-valid-until").value;
-//   const isCategory = e.target.dataset.type === "category";
+editDiscountForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const discountPercentage = parseFloat(document.getElementById("edit-discount-percentage").value);
+  const validUntil = document.getElementById("edit-discount-valid-until").value;
 
-//   if(isNaN(discountPercentage) || discountPercentage <=0 || discountPercentage > 100){
-//     alert("Please enter a valid discount percentage (1-100).");
-//     return;
-//   }
-//   if(!validUntil) {
-//     alert("Please specify a valid end date for the discount.");
-//     return;
-//   }
+  if(isNaN(discountPercentage) || discountPercentage <= 0 || discountPercentage > 100) {
+    alert("Please enter a valid discount percentage (1-100).");
+    return;
+  }
+  if(!validUntil){
+    alert("Please specify a valid end date.");
+    return;
+  }
+  try {
+    // Send updated discount to the server
+    const response = await fetch("/api/update-discount", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itemId: currentDiscountId,
+        discount_percentage: discountPercentage,
+        validUntil,
+      }),
+    });
 
-//   try{
-//     const endpoint = isCategory ? "/update-category-discount" : "/update-discount";
-//     const payload = isCategory ? {categoryId: form.dataset.categoryId, discountPercentage, validUntil} : {itemId: form.dataset.itemId, discountPercentage, validUntil};
+    if (!response.ok) throw new Error("Failed to update discount.");
 
-//     const response = await fetch(endpoint,{
-//       method: "POST",
-//       headers: {"Content-Type": "application/json"},
-//       body: JSON.stringify(payload),
-//     });
-//     if(!response.ok) throw new Error("Failed to apply discount");
-//     alert("Discount applied successfully!");
-//     form.reset();
-//     document.getElementById("discount-modal").style.display = "none";
+    console.log("Discount updated successfully!");
+    alert("Discount updated successfully!");
 
-//     const discounts = await fetchDiscounts();
-//     populateDiscountTable(discounts);
-//   }catch(error){
-//     console.error("Error applying discount:", error);
-//     alert("Failed to apply discount. Please try again.");
-//   }
-// });
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  // Form submission logic
-  discountForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const discountPercentage = parseFloat(
-      document.getElementById("discount-percentage").value
-    );
-    const validUntil = document.getElementById("discount-valid-until").value;
-    const isCategory = e.target.dataset.type === "category";
-
-    if (
-      isNaN(discountPercentage) ||
-      discountPercentage <= 0 ||
-      discountPercentage > 100
-    ) {
-      alert("Please enter a valid discount percentage (1-100).");
-      return;
-    }
-    if (!validUntil) {
-      alert("Please specify a valid end date for the discount.");
-      return;
-    }
-
-    try {
-      const payload = isCategory
-        ? {
-            categoryId: discountForm.dataset.categoryId,
-            discountPercentage,
-            validUntil,
-          }
-        : {
-            itemId: discountForm.dataset.itemId,
-            discountPercentage,
-            validUntil,
-          };
-
-      console.log("Payload being sent:", payload);
-
-      const endpoint = isCategory
-        ? "api/update-category-discount"
-        : "api/update-discount";
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Failed to apply discount");
-
-      alert("Discount applied successfully!");
-      discountForm.reset();
-      discountModal.classList.remove("show");
-      discountModal.style.display = "none";
-
-      const discounts = await fetchDiscounts();
-      populateDiscountTable(discounts);
-    } catch (error) {
-      console.error("Error applying discount:", error);
-      alert("Failed to apply discount. Please try again.");
-    }
-  });
+    // Close modal and refresh discount table
+    hideModal(editDiscountModal);
+    const discounts = await fetchDiscounts();
+    populateDiscountTable(discounts);
+  } catch (error) {
+    console.error("Error updating discount:", error);
+    alert("Failed to update discount. Please try again.");
+  }
 });
-  // Close modal logic
-  document.getElementById("close-discount-modal").addEventListener("click", () => {
-    hideModal(discountModal);
-  });
+
+//Close Edit Discount modal
+document.getElementById("close-edit-discount-modal").addEventListener("click", () =>{
+  hideModal(editDiscountModal);
+});
+
+// Close modal logic
+document.getElementById("close-discount-modal").addEventListener("click", () => {
+   hideModal(discountModal);
+});
 
 // Open discount modal for item
 document.querySelectorAll(".apply-discount-btn").forEach((button) => {

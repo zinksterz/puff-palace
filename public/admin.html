@@ -208,6 +208,23 @@
         </div>
     </div>
 
+    <!-- Edit Discount Modal -->
+    <div id="edit-discount-modal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Discount</h2>
+            <button class="modal-close-btn" id="close-edit-discount-modal">&times;</button>
+            <form id="edit-discount-form">
+                <label for="edit-discount-percentage">Discount Percentage:</label>
+                <input type="number" id="edit-discount-percentage" min="1" max="100" required />
+
+                <label for="edit-discount-valid-until">Valid Until:</label>
+                <input type="date" id="edit-discount-valid-until" required />
+
+                <button type="submit" class="save-changes-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
 
     <script src="js/items.js" defer></script>
     <script src="js/admin.js" defer></script>
