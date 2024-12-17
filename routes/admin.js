@@ -7,6 +7,7 @@ const {
   deleteItemFromDatabase,
   addItemToDatabase,
   addItemToCategory,
+  getItemCategories,
 } = require("../clover_api");
 const { Product } = require("../models");
 const {Op} = require("sequelize");
@@ -69,49 +70,6 @@ router.post("/update-discount", async (req, res) => {
     res.status(500).json({ error: "Failed to update discount." });
   }
 });
-
-// //Logic for adding a discount
-// router.post("/discounts", (req, res) => {
-//   try {
-//     const { product, discount, validUntil } = req.body;
-
-//     //validation
-//     if (!product || !discount || !validUntil) {
-//       return res
-//         .status(400)
-//         .json({
-//           success: false,
-//           message: "Missing one or more required fields...",
-//         });
-//     }
-//     const newDiscount = {
-//       id: discounts.length + 1,
-//       product,
-//       discount,
-//       validUntil,
-//     };
-
-//     discounts.push(newDiscount);
-//     res.json({ success: true, discount: newDiscount });
-//   } catch (error) {
-//     console.error("Error creating discount: ", error);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Failed to create new discount..." });
-//   }
-// });
-
-// //Fetching a list of Discounted items
-// router.get("/discounts", (req, res) => {
-//   try {
-//     res.json({ success: true, discounts });
-//   } catch (error) {
-//     console.error("Error fetching discounts: ", error);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Failed to fetch discounts..." });
-//   }
-// });
 
 //adding new items
 router.post("/items", async (req, res) => {
@@ -184,6 +142,54 @@ router.get("/total-products", (req, res) => {
 
 //Database methods
 
+//Route to fix items with missing category Id's
+router.post("/fix-missing-categories", async(req,res) => {
+  try {
+    // Fetch all items with missing or null category_id
+    const items = await Product.findAll({
+      where: { category_id: { [Op.or]: [null, ""] } }, // Adjust based on your DB structure
+    });
+
+    if (!items.length) {
+      return res.json({ message: "No items with missing categories found." });
+    }
+
+    const updates = [];
+    for (const item of items) {
+      try {
+        // Fetch the categories for the current item via Clover API
+        const categories = await getItemCategories(item.id);
+        if (categories && categories.length > 0) {
+          const firstCategory = categories[0]; // Assume the first category is primary
+
+          // Update the product with the fetched category ID and name
+          updates.push(
+            Product.update(
+              { category_id: firstCategory.id, category: firstCategory.name },
+              { where: { id: item.id } }
+            )
+          );
+
+          logger.info(
+            `Updated item ${item.id} with category ID ${firstCategory.id} (${firstCategory.name})`
+          );
+        } else {
+          logger.warn(`No categories found for item ${item.id}`);
+        }
+      } catch (error) {
+        logger.error(`Failed to fetch categories for item ${item.id}:`, error);
+      }
+    }
+
+    // Perform all updates in parallel
+    await Promise.all(updates);
+    res.json({ message: "Missing categories updated successfully." });
+  } catch (error) {
+    logger.error("Error fixing missing categories:", error);
+    res.status(500).json({ error: "Failed to update missing categories." });
+  }
+});
+
 //Get item from database for update
 router.get("/items/:productId/psdb", async (req, res) => {
   try {
@@ -198,7 +204,6 @@ router.get("/items/:productId/psdb", async (req, res) => {
 
 //Update product in database
 router.put("/items/:id/psdb", async (req, res) => {
-  logger.info("!!!! /items/:id/psdb endpoint accessed");
   const productId = req.params.id;
   const updatedData = req.body;
 
@@ -247,6 +252,37 @@ router.get("/items/discounted", async (req,res) =>{
   }catch(error){
     console.error("Error fetching discounted items from database: ", error);
     res.status(500).json({error: "Failed to fetch discounted items from database."});
+  }
+});
+
+//Get single discounted item details
+router.get("/items/discounted/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await Product.findByPk(id, {
+      attributes: [
+        "id",
+        "name",
+        "price",
+        "discount_percentage",
+        "discount_valid_until",
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: "Discounted product not found." });
+    }
+
+    res.json({
+      id: product.id,
+      name: product.name,
+      discount_percentage: product.discount_percentage,
+      discount_valid_until: product.discount_valid_until,
+    });
+  } catch (error) {
+    console.error("Error fetching discount details: ", error);
+    res.status(500).json({ error: "Failed to fetch discount details." });
   }
 });
 

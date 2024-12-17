@@ -61,30 +61,6 @@ async function getItemCategories(itemId) {
   }
 }
 
-//Maps categories to items : no longer necessary for current workflow but may be utilized down the line
-async function mapCategoriesToItems(items){
-  const categories = await getAllCategories();
-  const categoriesMap = {};
-
-  categories.forEach((category) => {
-    categoriesMap[category.id] = category.name;
-  });
-
-  for (let item of items) {
-      try{
-        const itemCategories = await getItemCategories(item.id);
-        const primaryCategory = itemCategories.length > 0 ? itemCategories[0] : null;
-        item.categoryId = primaryCategory ? primaryCategory.id : null;
-        item.categoryName = primaryCategory ? categoriesMap[item.categoryId] : "Uncategorized";
-      } catch(categoryError){
-        logger.warn(`No category found for item: ${item.name}`);
-        item.categoryId = null;
-        item.categoryName = "Uncategorized";
-      }
-      return items;
-  }
-}
-
 //Retrieves all items from merchant
 async function getItems() {
   try {
@@ -306,6 +282,7 @@ module.exports = {
   getMerchantData,
   getAllCategories,
   getItemsByCategory,
+  getItemCategories,
   fetchProductDetails,
   getItems,
   updateItemInDatabase,
