@@ -333,7 +333,7 @@ async function getMerchantRevenue() {
 async function syncCloverWithDatabase() {
   try {
     //fetch products from Clover
-    const cloverProducts = await getItems();
+    const cloverProducts = await fetchAllItems();
     const cloverProductIds = cloverProducts.map((product) => product.id);
 
     //Fetch all products from database
@@ -382,16 +382,7 @@ async function syncCloverWithDatabase() {
 //Find missing items from database that are in clover 
 async function findMissingItems() {
   try {
-    // Fetch all items from Clover
-    const cloverResponse = await axios.get(
-      `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
-        },
-      }
-    );
-    const cloverItems = cloverResponse.data.elements;
+    const cloverItems = await fetchAllItems();
 
     // Fetch all items from the database
     const dbItems = await Product.findAll({ attributes: ["id"] });

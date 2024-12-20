@@ -416,4 +416,51 @@ router.get("/find-me", async (req, res) => {
   }
 });
 
+//populate missing items
+router.post("/populate-missing-items", async (req, res) => {
+  try {
+    const missingItems = await findMissingItems();
+    if (missingItems.length === 0) {
+      return res.status(200).json({ message: "No missing items to populate." });
+    }
+
+    const updates = [];
+    for (const itemId of missingItems) {
+      try {
+        const itemDetails = await fetchProductDetails(itemId);
+        const categories = await getItemCategories(itemId);
+
+        const category =
+          categories.length > 0 ? categories[0].name : "Uncategorized";
+        const categoryId = categories.length > 0 ? categories[0].id : null;
+
+        updates.push(
+          Product.upsert({
+            id: itemDetails.id,
+            name: itemDetails.name,
+            price: itemDetails.price,
+            category,
+            category_id: categoryId,
+            image_url: itemDetails.imageUrl || "",
+            tags: itemDetails.tags || [],
+            is_featured: itemDetails.isFeatured || false,
+          })
+        );
+      } catch (error) {
+        console.error(
+          `Failed to populate missing item ${itemId}:`,
+          error.message
+        );
+      }
+    }
+
+    await Promise.all(updates);
+    res.status(200).json({ message: "Missing items populated successfully." });
+  } catch (error) {
+    console.error("Error populating missing items:", error.message);
+    res.status(500).json({ error: "Failed to populate missing items." });
+  }
+});
+
+
 module.exports = router;
