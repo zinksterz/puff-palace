@@ -379,6 +379,34 @@ async function syncCloverWithDatabase() {
   }
 }
 
+//Find missing items from database that are in clover 
+async function findMissingItems() {
+  try {
+    // Fetch all items from Clover
+    const cloverResponse = await axios.get(
+      `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+        },
+      }
+    );
+    const cloverItems = cloverResponse.data.elements;
+
+    // Fetch all items from the database
+    const dbItems = await Product.findAll({ attributes: ["id"] });
+
+    // Compare IDs
+    const cloverIds = cloverItems.map((item) => item.id);
+    const dbIds = dbItems.map((item) => item.id);
+    const missingIds = cloverIds.filter((id) => !dbIds.includes(id));
+
+    console.log("Missing item IDs in the database:", missingIds);
+  } catch (error) {
+    console.error("Error finding missing items:", error.message);
+  }
+}
+
 
 module.exports = {
   getMerchantData,
@@ -395,4 +423,5 @@ module.exports = {
   fetchAllItems,
   syncCloverWithDatabase,
   getMerchantRevenue,
+  findMissingItems,
 };

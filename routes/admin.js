@@ -10,6 +10,7 @@ const {
   getItemCategories,
   syncCloverWithDatabase,
   getMerchantRevenue,
+  findMissingItems,
 } = require("../clover_api");
 const { Product } = require("../models");
 const {Op} = require("sequelize");
@@ -396,6 +397,22 @@ router.get("/revenue", async (req, res) => {
   } catch (error) {
     logger.error("Error fetching revenue data:", error.message);
     res.status(500).json({ error: "Failed to fetch revenue data." });
+  }
+});
+
+router.get("/find-me", async (req, res) => {
+  try {
+    const missingItems = await findMissingItems();
+    res.status(200).json({
+      message: "Missing items fetched successfully",
+      missingItems,
+    });
+  } catch (error) {
+    console.error("Error finding missing items:", error.message);
+    res.status(500).json({
+      error: "Failed to fetch missing items",
+      details: error.message,
+    });
   }
 });
 
