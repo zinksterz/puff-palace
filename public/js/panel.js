@@ -212,7 +212,7 @@ editDiscountForm.addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         itemId: currentDiscountId,
-        discount_percentage: discountPercentage,
+        discountPercentage: discountPercentage,
         validUntil,
       }),
     });
@@ -326,7 +326,15 @@ async function removeDiscount(discountId) {
 
 async function handleCategorySelection(categoryId, categoryName, categoryCard) {
   try {
-    const items = await fetchItems(categoryId);
+    let items;
+
+    if(categoryId === "uncategorized"){
+      const response = await fetch("/api/items/uncategorized");
+      if(!response.ok) throw new Error("Failed to fetch uncategorized items");
+      items = await response.json();
+    } else{
+      items = await fetchItems(categoryId);
+    }
 
     //update category header
     const categoryHeader = document.getElementById("current-category-header");
@@ -349,6 +357,11 @@ async function handleCategorySelection(categoryId, categoryName, categoryCard) {
 async function renderCategories(categories) {
   const categoryContainer = document.getElementById("category-container");
   if (!categoryContainer) return;
+
+  //Uncategorized category
+  const uncategorizedCategory = { id: "uncategorized", name: "Uncategorized"};
+  categories.push(uncategorizedCategory);
+
   //sort categories alphabetically
   categories.sort((a, b) => a.name.localeCompare(b.name));
   categoryContainer.innerHTML = "";

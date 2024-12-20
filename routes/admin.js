@@ -124,6 +124,21 @@ router.get("/total-products", (req, res) => {
   }
 });
 
+//handling uncategorized items
+router.get("/items/uncategorized", async (req, res) => {
+  try {
+    const uncategorizedItems = await Product.findAll({
+      where: { category_id: null },
+    });
+
+    res.json(uncategorizedItems);
+  } catch (error) {
+    console.error("Error fetching uncategorized items:", error);
+    res.status(500).json({ error: "Failed to fetch uncategorized items." });
+  }
+});
+
+
 //Database methods
 
 //Route to fix items with missing category Id's
@@ -232,7 +247,6 @@ router.get("/items/discounted", async (req,res) =>{
         discount_valid_until: {[Op.gt]: new Date()},
       },
     });
-    console.log("Discounted items from database: ", discountedItems);
     res.json(discountedItems);
   }catch(error){
     console.error("Error fetching discounted items from database: ", error);
