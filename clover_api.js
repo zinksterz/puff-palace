@@ -158,17 +158,41 @@ async function deleteItemFromDatabase(itemId){
 }
 
 async function addItemToDatabase(itemData){
+    console.log("Here is the payload being sent from api call:", itemData);
+  const payload={
+    name: itemData.name,
+    price: itemData.price,
+    available: itemData.available,
+    categories: [{id: itemData.category_id, name:itemData.category}],
+  };
   try{
-    const response = await axios.post(`${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`,
-      itemData,
+    const response = await axios.post(
+      `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/items`,
+      payload,
       {
-      headers:{
-        Authorization:`Bearer ${process.env.CLOVER_API_TOKEN}`,
-        "Content-Type":"application/json",
-      },
-    }
-  );
-    console.log(`Item ${itemData.name} added successfully!`);
+        headers: {
+          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(`Item ${itemData.name} added successfully to Clover!`);
+    // console.log("Here is the payload being sent from api call:", response.data);
+    await Product.create({
+      id: response.data.id,
+      name: itemData.name,
+      price: itemData.price,
+      description: itemData.description || "No description was provided.",
+      category: itemData.category,
+      category_id: itemData.category_id,
+      image_url: itemData.image_url || "",
+      tags: itemData.tags || [],
+      is_featured: itemData.is_featured || false,
+    });
+
+    console.log(
+      `Item ${itemData.name} added successfully to the local database!`
+    );
     return response.data;
   }catch(error){
     console.error("Error adding item to Clover: ", error.response?.data || error.message);
@@ -233,6 +257,7 @@ async function getTotalProductsCount() {
       }
       offset += limit;//move to next page
     }
+    console.log("Fetched total products count:", totalCount);
     return totalCount;
   }catch(error){
     console.error("Error fetching total products count: ", error);

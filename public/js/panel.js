@@ -21,6 +21,7 @@ function hideModal(modal) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
+    await updateTotalProducts();
     updateActiveDiscounts();
     updateRevenueCard();
     const categories = await fetchCategories();
@@ -556,11 +557,11 @@ document
   .getElementById("add-product-form")
   .addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const categoryId = document.getElementById("current-category-header")
-      .dataset.categoryId;
+    .dataset.categoryId;
     const categoryName =
-      document.getElementById("current-category").textContent;
+    document.getElementById("current-category").textContent;
+    console.log("Category ID: " + categoryId + "Category Name: " + categoryName);
 
     const newProduct = {
       name: document.getElementById("add-product-name").value,
@@ -576,52 +577,28 @@ document
         document.getElementById("add-product-featured").value === "true",
       image_url: document.getElementById("add-product-image").value,
       category_id: categoryId,
-      category: document.getElementById("current-category").textContent,
+      category: categoryName,
     };
-
     try {
-      const cloverFields = {
-        name: newProduct.name,
-        price: newProduct.price,
-        available: newProduct.available,
-        categories: [
-          {
-            id: categoryId,
-            name: categoryName,
-          },
-        ],
-      };
-
-      const cloverResponse = await fetch("/api/items", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(cloverFields),
-      });
-
-      if (!cloverResponse.ok)
-        throw new Error("Failed to add product to Clover!");
-
-      const cloverData = await cloverResponse.json();
-      console.log("Product added successfully!", cloverData);
-
-      newProduct.id = cloverData.id;
-
-      const dbResponse = await fetch("/api/items/psdb", {
+      // Send the complete product data to the `/api/items` route
+      const response = await fetch("/api/items", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newProduct),
+        body: JSON.stringify(newProduct), // Use `newProduct` directly
       });
 
-      if (!dbResponse.ok)
-        throw new Error("Failed to add product to database...");
+      if (!response.ok)
+        throw new Error("Failed to add product to Clover!");
 
-      console.log("Product successfully added to the database!");
+      const addedProduct = await response.json();
+      console.log(
+        "Product added successfully to Clover and database!",
+        addedProduct
+      );
 
-      //Close modal and refresh product table
+      // Close modal and refresh product table
       hideModal(addProductModal);
       const items = await fetchItems(categoryId);
       populateProductTable(items);
@@ -630,6 +607,57 @@ document
       alert("Failed to add the product. Please try again.");
     }
   });
+    // try {
+  //     const cloverFields = {
+  //       name: newProduct.name,
+  //       price: newProduct.price,
+  //       available: newProduct.available,
+  //       categories: [
+  //         {
+  //           id: categoryId,
+  //           name: categoryName,
+  //         },
+  //       ],
+  //     };
+
+  //     const cloverResponse = await fetch("/api/items", {
+  //       method: "POST",
+  //       headers: {
+  //         "content-type": "application/json",
+  //       },
+  //       body: JSON.stringify(cloverFields),
+  //     });
+
+  //     if (!cloverResponse.ok)
+  //       throw new Error("Failed to add product to Clover!");
+
+  //     const cloverData = await cloverResponse.json();
+  //     console.log("Product added successfully!", cloverData);
+
+  //     newProduct.id = cloverData.id;
+
+  //     const dbResponse = await fetch("/api/items/psdb", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(newProduct),
+  //     });
+
+  //     if (!dbResponse.ok)
+  //       throw new Error("Failed to add product to database...");
+
+  //     console.log("Product successfully added to the database!");
+
+  //     //Close modal and refresh product table
+  //     hideModal(addProductModal);
+  //     const items = await fetchItems(categoryId);
+  //     populateProductTable(items);
+  //   } catch (error) {
+  //     console.error("Error adding product: ", error);
+  //     alert("Failed to add the product. Please try again.");
+  //   }
+  // });
 
 function populateProductTable(products) {
   if (!productTableBody) return;
@@ -746,11 +774,37 @@ async function updateRevenueCard() {
 
     const data = await response.json();
     const revenue = data.totalRevenue.toFixed(2); // Format to 2 decimal places
-    
+
     document.getElementById("revenue").textContent = `$${revenue}`;
   } catch (error) {
     console.error("Error fetching revenue data:", error);
     document.getElementById("revenue").textContent = "Error";
   }
 }
+
+async function updateTotalProducts() {
+  try {
+    // Fetch total products count
+    const response = await fetch("/api/total-products");
+    const { totalProducts } = await response.json();
+
+    // If 0, trigger a refresh
+    if (totalProducts === 0) {
+      console.log("Total Products is 0, forcing refresh...");
+      const refreshResponse = await fetch("/api/total-products?force=true");
+      const refreshedData = await refreshResponse.json();
+      document.getElementById("total-products").textContent =
+        refreshedData.totalProducts || "Error";
+    } else {
+      document.getElementById("total-products").textContent = totalProducts;
+    }
+
+    console.log("Total Products from API:", totalProducts);
+  } catch (error) {
+    console.error("Error updating total products:", error);
+    document.getElementById("total-products").textContent = "Error";
+  }
+}
+
+
 

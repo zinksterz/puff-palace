@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
-const { getCachedTotalProducts } = require("../utils/cacheHandler");
+const { cacheTotalProducts, getCachedTotalProducts } = require("../utils/cacheHandler");
 const {
   updateItemInDatabase,
   deleteItemFromDatabase,
@@ -58,19 +58,12 @@ router.get("/is-admin", (req, res) => {
 
 //adding new items
 router.post("/items", async (req, res) => {
-  const { name, price, available, categories } = req.body;
-
   try {
-    const newItem = {
-      name,
-      price,
-      available,
-      categories,
-    };
+    const newItem = req.body;
+    console.log("Payload sent from panel.js: ", newItem);
     const createdItem = await addItemToDatabase(newItem);
-    const categoryId = categories[0]?.id;
-    if (categoryId) {
-      await addItemToCategory(createdItem.id, categoryId);
+    if (newItem.category_id) {
+      await addItemToCategory(createdItem.id, newItem.category_id);
     }
     res.status(201).json(createdItem);
   } catch (error) {
@@ -110,10 +103,18 @@ router.delete("/items/:id", async (req, res) => {
 
 //views for admin specific stats (revenue/active discounts/etc)
 //Total Products
-router.get("/total-products", (req, res) => {
+router.get("/total-products", async (req, res) => {
+  const forceRefresh = req.query.force === "true";
   try {
-    const totalProducts = getCachedTotalProducts();
-    res.json({ success: true, totalProducts });
+    let totalProducts;
+    if(forceRefresh || getCachedTotalProducts() === 0){
+      console.log("Refreshing total products count...");
+      totalProducts = await cacheTotalProducts();
+    } else{
+      totalProducts = getCachedTotalProducts();
+    }
+    console.log("Total products sent to client: ", totalProducts);
+    res.json({success: true, totalProducts});
   } catch (error) {
     console.error("Error retrieving cached total products count: ", error);
     res
@@ -227,17 +228,17 @@ router.put("/items/:id/psdb", async (req, res) => {
 });
 
 //add new product to the database
-router.post("/items/psdb", async (req, res) => {
-  const newProductData = req.body;
+// router.post("/items/psdb", async (req, res) => {
+//   const newProductData = req.body;
 
-  try {
-    const newProduct = await Product.create(newProductData);
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error("Error adding product to database: ", error);
-    res.status(500).json({ error: "Failed to add new product to database..." });
-  }
-});
+//   try {
+//     const newProduct = await Product.create(newProductData);
+//     res.status(201).json(newProduct);
+//   } catch (error) {
+//     console.error("Error adding product to database: ", error);
+//     res.status(500).json({ error: "Failed to add new product to database..." });
+//   }
+// });
 
 //get discounted items from database
 router.get("/items/discounted", async (req,res) =>{
