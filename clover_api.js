@@ -1,6 +1,7 @@
 require("dotenv").config();
 const logger = require("./utils/logger");
 const axios = require("axios");
+const {Product} = require("./models");
 
 async function getMerchantData() {
   try {
@@ -91,10 +92,7 @@ async function getItemsByCategory(categoryId) {
         },
       }
     );
-    const items = response.data.elements.map((item) => ({
-      ...item,
-      isDiscounted: false, //defaulted to no discount >>> Updated in admin panel
-    }));
+    const items = response.data.elements;
     return items;
   } catch (error) {
     logger.error("Error fetching category items:", error);
@@ -276,6 +274,55 @@ async function fetchAllItems() {
   }
 }
 
+//Syncing database and clover 
+async function syncCloverWithDatabase() {
+  try {
+    //fetch products from Clover
+    const cloverProducts = await getItems();
+    const cloverProductIds = cloverProducts.map((product) => product.id);
+
+    //Fetch all products from database
+    const localProducts = await Product.findAll();
+    const localProductIds = localProducts.map((product) => product.id);
+
+    //Identify products to delete from database if they have been removed from Clover
+    const productsToDelete = localProducts.filter(
+      (product) => !cloverProductIds.includes(product.id)
+    );
+
+    // Delete products that are no longer in Clover
+    for (const product of productsToDelete) {
+      await Product.destroy({ where: { id: product.id } });
+      logger.info(
+        `Deleted product ${product.name} (${product.id}) from the database.`
+      );
+    }
+
+    // Upsert remaining products into the database
+    for (const cloverProduct of cloverProducts) {
+      const categories = await getItemCategories(cloverProduct.id);
+
+      const category = categories.length > 0 ? categories[0].name : "Uncategorized";
+      const categoryId = categories.length > 0 ? categories[0].id : null;
+
+      await Product.upsert({
+        id: cloverProduct.id,
+        name: cloverProduct.name,
+        price: cloverProduct.price,
+        category,
+        category_id: categoryId,
+        image_url: cloverProduct.imageUrl || "",
+        tags: cloverProduct.tags || [],
+        is_featured: cloverProduct.isFeatured || false,
+      });
+    }
+
+    logger.info("Sync with Clover completed successfully.");
+  } catch (error) {
+    logger.error("Error syncing with Clover: ", error);
+    throw error;
+  }
+}
 
 
 module.exports = {
@@ -291,4 +338,5 @@ module.exports = {
   addItemToCategory,
   getTotalProductsCount,
   fetchAllItems,
+  syncCloverWithDatabase,
 };

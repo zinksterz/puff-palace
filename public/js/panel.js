@@ -1,5 +1,6 @@
 //Cached DOM elements
 const productTableBody = document.getElementById("product-table-body");
+const discountTableBody = document.getElementById("discount-table-body");
 const discountForm = document.getElementById("discount-form");
 const discountModal = document.getElementById("discount-modal");
 const editModal = document.getElementById("edit-item-modal");
@@ -30,9 +31,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     //initializes product table with a message
     populateProductTable([]);
 
-    const tableBody = productTableBody;
-    if (tableBody) {
-      tableBody.addEventListener("click", (e) => {
+    if (productTableBody) {
+      productTableBody.addEventListener("click", (e) => {
         const productId = e.target.dataset.id;
         if (e.target.classList.contains("edit")) {
           const product = JSON.parse(e.target.dataset.product);
@@ -151,6 +151,7 @@ async function fetchDiscounts() {
     const response = await fetch("/api/items/discounted");
     if (!response.ok) throw new Error(`Failed to fetch discounted items.`);
     const discounts = await response.json();
+    console.log("Fetched discounts:", discounts);
     return discounts;
   } catch (error) {
     console.error("Error fetching discounts: ", error);
@@ -287,6 +288,11 @@ window.onclick = (event) => {
 
 //Remove a discount
 async function removeDiscount(discountId) {
+  if(!discountId){
+    console.error("Invalid discount ID: ", discountId);
+    alert("Failed to identify this discount. Please try again later.");
+    return;
+  }
   const confirmRemove = confirm(
     "Are you sure you want to remove this discount?"
   );
@@ -298,12 +304,16 @@ async function removeDiscount(discountId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         itemId: discountId,
-        discount_percentage: null, // Set discount to null
-        validUntil: null,
+        discountPercentage: null, //Reset discount
+        validUntil: null, //Reset validity
       }),
     });
 
-    if (!response.ok) throw new Error("Failed to remove discount");
+    if (!response.ok) {
+      const errorDetails = await response.json(); // Get server error message
+      console.error("Failed to remove discount:", errorDetails);
+      throw new Error(`Failed to remove discount: ${errorDetails.error}`);
+    }
     alert("Discount removed successfully!");
 
     const discounts = await fetchDiscounts();
@@ -608,16 +618,15 @@ document
   });
 
 function populateProductTable(products) {
-  const tableBody = productTableBody;
-  if (!tableBody) return;
+  if (!productTableBody) return;
 
-  tableBody.innerHTML = ""; // Clear existing rows
+  productTableBody.innerHTML = ""; // Clear existing rows
 
   if (!products || products.length === 0) {
     //Display message when no products are available
     const noItemsRow = document.createElement("tr");
     noItemsRow.innerHTML = `<td colspan="4" style="text-align: center;">No products found. Please select a category from above.</td>`;
-    tableBody.appendChild(noItemsRow);
+    productTableBody.appendChild(noItemsRow);
     return;
   }
   products.forEach((product) => {
@@ -638,23 +647,28 @@ function populateProductTable(products) {
                 }">Discount</button>
             </td>
         `;
-    tableBody.appendChild(row);
+    productTableBody.appendChild(row);
   });
 }
 
-function populateDiscountTable(discounts) {
-  const tableBody = document.getElementById("discount-table-body");
-  if (!tableBody) return;
+async function refreshDiscountTable(){
+  const discounts = await fetchDiscounts();
+  populateDiscountTable(discounts);
+}
 
-  tableBody.innerHTML = ""; // Clear existing rows
-  if (discounts.length === 0) {
+function populateDiscountTable(discounts) {
+  if (!discountTableBody) return;
+
+  discountTableBody.innerHTML = ""; // Clear existing rows
+  if (!discounts || discounts.length === 0) {
     //displays message if there's no discounts available
     const noItemsRow = document.createElement("tr");
     noItemsRow.innerHTML = `<td colspan="4" style="text-align: center">There are currently no active discounts to display. You can apply discounts using the product management table.</td>`;
-    tableBody.appendChild(noItemsRow);
+    discountTableBody.appendChild(noItemsRow);
     return;
   }
   discounts.forEach((discount) => {
+    console.log("Processing discount:", discount.name);
     const row = document.createElement("tr");
     row.innerHTML = `
             <td>${discount.name}</td>
@@ -671,15 +685,30 @@ function populateDiscountTable(discounts) {
                 }">Remove</button>
             </td>
         `;
-    tableBody.appendChild(row);
-  });
-  //event delegation
-  tableBody.addEventListener("click", (e) =>{
-    const discountId = e.target.dataset.id;
-    if(e.target.classList.contains("edit")){
-      editDiscount(discountId);
-    } else if(e.target.classList.contains("delete")){
-      removeDiscount(discountId);
-    }
+    discountTableBody.appendChild(row);
   });
 }
+
+document.getElementById("refresh-discounts-btn").addEventListener("click", async () => {
+  const button = document.getElementById("refresh-discounts-btn");
+  button.disabled = true;
+  button.textContent = "Refreshing...";
+  try{
+    await refreshDiscountTable();
+    button.textContent = "Refresh Discounts";
+  }catch(error){
+    console.error("Error refreshing discounts: ", error);
+    button.textContent = "Error! Try Again.";
+  } finally {
+    button.disabled = false;
+  }
+});
+
+discountTableBody.addEventListener("click", (e) => {
+  const discountId = e.target.dataset.id;
+  if (e.target.classList.contains("edit")) {
+    editDiscount(discountId);
+  } else if (e.target.classList.contains("delete")) {
+    removeDiscount(discountId);
+  }
+});

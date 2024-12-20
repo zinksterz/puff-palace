@@ -8,6 +8,7 @@ const {
   addItemToDatabase,
   addItemToCategory,
   getItemCategories,
+  syncCloverWithDatabase,
 } = require("../clover_api");
 const { Product } = require("../models");
 const {Op} = require("sequelize");
@@ -51,23 +52,6 @@ router.get("/is-admin", (req, res) => {
     res.json({ isAdmin: true });
   } else {
     res.status(403).json({ isAdmin: false, message: "Access Denied" });
-  }
-});
-
-//Logic to discount or remove discount from an item
-router.post("/update-discount", async (req, res) => {
-  const { itemId, isDiscounted } = req.body;
-
-  try {
-    //update discount status statefully
-    console.log(`Updating item ${itemId} to isDiscounted: ${isDiscounted}`);
-    res.status(200).json({ message: "Item discount updated successfully." });
-  } catch (error) {
-    console.error(
-      "There was an issue updating the items discount status: ",
-      error.message
-    );
-    res.status(500).json({ error: "Failed to update discount." });
   }
 });
 
@@ -248,6 +232,7 @@ router.get("/items/discounted", async (req,res) =>{
         discount_valid_until: {[Op.gt]: new Date()},
       },
     });
+    console.log("Discounted items from database: ", discountedItems);
     res.json(discountedItems);
   }catch(error){
     console.error("Error fetching discounted items from database: ", error);
@@ -289,7 +274,29 @@ router.get("/items/discounted/:id", async (req, res) => {
 //Update an items discount status
 router.post("/update-discount", async (req,res) => {
   const {itemId, discountPercentage, validUntil} = req.body;
-  console.log("Received discount payload:", {itemId, discountPercentage, validUntil} );
+  console.log("Received discount payload:", req.body);
+  if(!itemId) {
+    return res.status(400).json({error: "Item ID is required."})
+  }
+  //validate req body properties
+  if(
+    typeof discountPercentage !== "number" && discountPercentage !== null
+  ) {
+    return res.status(400).json({error: "Invalid Discount Percentage."});
+  }
+  if (
+    discountPercentage !== null &&
+    (discountPercentage < 0 || discountPercentage > 100)
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Discount percentage must be between 0 and 100." });
+  }
+
+  if (discountPercentage !== null && !validUntil) {
+    return res.status(400).json({ error: "Valid until date is required." });
+  }
+
   try{
     const product = await Product.findByPk(itemId);
     if(!product){
@@ -337,6 +344,16 @@ router.post("/update-category-discount", async(req,res) =>{
   } catch(error){
     console.error("Error applying category discount: ", error);
     res.status(500).json({error: "Failed to apply category discount."});
+  }
+});
+
+router.post("/sync-products", async (req,res) => {
+  try{
+    await syncCloverWithDatabase();
+    res.status(200).json({message: "Products synchronized successfully!"});
+  }catch(error){
+    console.error("Error syncing products: ",error);
+    res.status(500).json({error: "Failed to sync products..."});
   }
 });
 

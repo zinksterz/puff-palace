@@ -16,6 +16,7 @@ const merchantRoutes = require("./routes/merchant");
 const userRoutes = require("./routes/user");
 const utilsRoutes = require("./routes/utils");
 const authRoutes = require("./routes/auth");
+const { syncCloverWithDatabase } = require("./clover_api");
 
 const app = express();
 
@@ -62,7 +63,18 @@ app.use("/api/auth", authRoutes);
 //Winston - Logger logic
 logger.info("Server is starting...");
 
-//Scheduling tasks to run every day at 11:59 PM
+//Database / Clover sync happens at 11:30pm
+cron.schedule("30 23 * * *", async() =>{
+  console.log("Starting nightly Clover product sync....");
+  try{
+    await syncCloverWithDatabase();
+    console.log("Product sync completed successfully!");
+  } catch(error){
+    console.error("Failed to sync products with Clover: ", error);
+  }
+});
+
+//Cache Refresh happens at midnight
 cron.schedule("59 23 * * *", async () => {
   console.log("Refreshing total product count cache...");
   try {
