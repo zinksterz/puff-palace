@@ -21,6 +21,7 @@ function hideModal(modal) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
+    updateActiveDiscounts();
     const categories = await fetchCategories();
     if (categories) renderCategories(categories);
 
@@ -151,7 +152,6 @@ async function fetchDiscounts() {
     const response = await fetch("/api/items/discounted");
     if (!response.ok) throw new Error(`Failed to fetch discounted items.`);
     const discounts = await response.json();
-    console.log("Fetched discounts:", discounts);
     return discounts;
   } catch (error) {
     console.error("Error fetching discounts: ", error);
@@ -681,7 +681,6 @@ function populateDiscountTable(discounts) {
     return;
   }
   discounts.forEach((discount) => {
-    console.log("Processing discount:", discount.name);
     const row = document.createElement("tr");
     row.innerHTML = `
             <td>${discount.name}</td>
@@ -725,3 +724,15 @@ discountTableBody.addEventListener("click", (e) => {
     removeDiscount(discountId);
   }
 });
+
+
+async function updateActiveDiscounts(){
+  try{
+    const response = await fetch("/api/active-discounts");
+    const {activeDiscounts} = await response.json();
+    document.getElementById("active-discounts").textContent = activeDiscounts;
+  }catch(error){
+    console.error("Error fetching active discounts: ", error);
+    document.getElementById("active-discounts").textContent = "Error";
+  }
+}

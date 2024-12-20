@@ -288,7 +288,6 @@ router.get("/items/discounted/:id", async (req, res) => {
 //Update an items discount status
 router.post("/update-discount", async (req,res) => {
   const {itemId, discountPercentage, validUntil} = req.body;
-  console.log("Received discount payload:", req.body);
   if(!itemId) {
     return res.status(400).json({error: "Item ID is required."})
   }
@@ -370,5 +369,22 @@ router.post("/sync-products", async (req,res) => {
     res.status(500).json({error: "Failed to sync products..."});
   }
 });
+
+//retrieve active discounts count
+router.get("/active-discounts", async (req, res) => {
+  try {
+    const activeDiscountsCount = await Product.count({
+      where: {
+        price_discounted: { [Op.not]: null },
+        discount_valid_until: { [Op.gt]: new Date() },
+      },
+    });
+    res.json({ activeDiscounts: activeDiscountsCount });
+  } catch (error) {
+    console.error("Error fetching active discounts:", error);
+    res.status(500).json({ error: "Failed to fetch active discounts." });
+  }
+});
+
 
 module.exports = router;
