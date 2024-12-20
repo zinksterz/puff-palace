@@ -54,7 +54,7 @@ router.get("/is-admin", (req, res) => {
   }
 });
 
-//Logic to discuont or remove discount from an item
+//Logic to discount or remove discount from an item
 router.post("/update-discount", async (req, res) => {
   const { itemId, isDiscounted } = req.body;
 

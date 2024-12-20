@@ -5,6 +5,7 @@ const discountModal = document.getElementById("discount-modal");
 const editModal = document.getElementById("edit-item-modal");
 const addProductModal = document.getElementById("add-product-modal");
 const editDiscountModal = document.getElementById("edit-discount-modal");
+const addProductForm = document.getElementById("add-product-form");
 const editDiscountForm = document.getElementById("edit-discount-form");
 
 function showModal(modal) {
@@ -514,6 +515,7 @@ async function deleteProduct(productId) {
 
 //Open add product modal
 document.getElementById("add-product-btn").addEventListener("click", () => {
+  addProductForm.reset();
   showModal(addProductModal);
 });
 //Close add product modal
@@ -550,6 +552,7 @@ document
         document.getElementById("add-product-featured").value === "true",
       image_url: document.getElementById("add-product-image").value,
       category_id: categoryId,
+      category: document.getElementById("current-category").textContent,
     };
 
     try {
