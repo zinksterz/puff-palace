@@ -274,6 +274,36 @@ async function fetchAllItems() {
   }
 }
 
+//Merchant revenue calculator
+async function getMerchantRevenue() {
+  try {
+    const response = await axios.get(
+      `${process.env.SANDBOX_URL}/merchants/${process.env.MID_PUFF_PALACE}/payments`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CLOVER_API_TOKEN}`,
+        },
+      }
+    );
+
+    const payments = response.data.elements;
+    let totalRevenue = 0;
+
+    // Calculate the total revenue
+    payments.forEach((payment) => {
+      totalRevenue += payment.amount;
+    });
+
+    // Convert revenue to dollars (assuming amounts are in cents)
+    totalRevenue = totalRevenue / 100;
+
+    return totalRevenue;
+  } catch (error) {
+    logger.error("Error fetching revenue from Clover API:", error.message);
+    throw error;
+  }
+}
+
 //Syncing database and clover 
 async function syncCloverWithDatabase() {
   try {
@@ -339,4 +369,5 @@ module.exports = {
   getTotalProductsCount,
   fetchAllItems,
   syncCloverWithDatabase,
+  getMerchantRevenue,
 };

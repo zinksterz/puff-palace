@@ -22,6 +22,7 @@ function hideModal(modal) {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     updateActiveDiscounts();
+    updateRevenueCard();
     const categories = await fetchCategories();
     if (categories) renderCategories(categories);
 
@@ -725,7 +726,7 @@ discountTableBody.addEventListener("click", (e) => {
   }
 });
 
-
+//active discounts card
 async function updateActiveDiscounts(){
   try{
     const response = await fetch("/api/active-discounts");
@@ -736,3 +737,20 @@ async function updateActiveDiscounts(){
     document.getElementById("active-discounts").textContent = "Error";
   }
 }
+
+//revenue card
+async function updateRevenueCard() {
+  try {
+    const response = await fetch("/api/revenue");
+    if (!response.ok) throw new Error("Failed to fetch revenue data.");
+
+    const data = await response.json();
+    const revenue = data.totalRevenue.toFixed(2); // Format to 2 decimal places
+    
+    document.getElementById("revenue").textContent = `$${revenue}`;
+  } catch (error) {
+    console.error("Error fetching revenue data:", error);
+    document.getElementById("revenue").textContent = "Error";
+  }
+}
+

@@ -9,6 +9,7 @@ const {
   addItemToCategory,
   getItemCategories,
   syncCloverWithDatabase,
+  getMerchantRevenue,
 } = require("../clover_api");
 const { Product } = require("../models");
 const {Op} = require("sequelize");
@@ -386,5 +387,15 @@ router.get("/active-discounts", async (req, res) => {
   }
 });
 
+//retrieve revenue information 
+router.get("/revenue", async (req, res) => {
+  try {
+    const totalRevenue = await getMerchantRevenue();
+    res.json({ totalRevenue });
+  } catch (error) {
+    logger.error("Error fetching revenue data:", error.message);
+    res.status(500).json({ error: "Failed to fetch revenue data." });
+  }
+});
 
 module.exports = router;
