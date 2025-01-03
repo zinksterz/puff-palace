@@ -5,19 +5,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const itemList = container.querySelector(".item-list");
     const leftButton = container.querySelector(".scroll-button.left");
     const rightButton = container.querySelector(".scroll-button.right");
+    const itemWidth = itemList.firstElementChild?.clientWidth || 200;//Fallback width
+    const itemsToScroll = 3;
+    const scrollDistance = itemWidth * itemsToScroll;
 
     function toggleButtonVisibility() {
       const scrollLeft = itemList.scrollLeft;
       const maxScrollLeft = itemList.scrollWidth - itemList.clientWidth;
-
-      if (itemList.scrollWidth <= itemList.clientWidth) {
-        leftButton.style.display = "none";
-        rightButton.style.display = "none";
-      } else {
-        leftButton.style.display = scrollLeft > 0 ? "block" : "none";
-        rightButton.style.display =
-          scrollLeft < maxScrollLeft ? "block" : "none";
-      }
+      leftButton.style.display = scrollLeft > 10 ? "block" : "none";
+      rightButton.style.display = scrollLeft < maxScrollLeft ? "block" : "none";
     }
 
     toggleButtonVisibility();
@@ -25,10 +21,25 @@ document.addEventListener("DOMContentLoaded", function () {
     itemList.addEventListener("scroll", toggleButtonVisibility);
 
     leftButton.addEventListener("click", () => {
-      itemList.scrollBy({ left: -200, behavior: "smooth" });
+      applyWaveEffect(itemList);
+      itemList.scrollBy({ left: -scrollDistance, behavior: "smooth" });
     });
     rightButton.addEventListener("click", () => {
-      itemList.scrollBy({ left: 200, behavior: "smooth" });
+      applyWaveEffect(itemList);
+      itemList.scrollBy({ left: scrollDistance, behavior: "smooth" });
     });
   });
+
+  function applyWaveEffect(container){
+    const items = container.querySelectorAll(".item");
+    items.forEach((item,index) =>{
+      item.style.transition = "transform 0.5s ease, opacity 0.5s ease";
+      item.style.transform = "scale(0.9)";
+      item.style.opacity = "0.8";
+      setTimeout(() => {
+        item.style.transform = "scale(1)";
+        item.style.opacity = "1";
+      }, index * 50); //stagger delay
+    });
+  }
 });

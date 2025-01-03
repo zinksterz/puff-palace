@@ -1,6 +1,8 @@
 const vapesId = "YJ8B07QX4QPVE";
 const cbdId = "RM4BW28ZKH8SA";
 const papersId = "5PST1Y4VP8DGC";
+const glasswareId = "RM4BW28ZKH8SA";
+const hookahId = "2W6EQJWZVXV1J";
 
 async function waitForServerReady(retries = 10, delay = 500) {
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -34,6 +36,7 @@ async function displayItems(containerSelector, categoryId) {
       //item card
       const itemCard = document.createElement("div");
       itemCard.classList.add("item-card");
+      itemCard.classList.add("item");
       itemCard.addEventListener("click", () => {
         console.log("Item clicked: ", item.id);
         fetchProductDetails(item.id);
@@ -157,6 +160,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     displayItems("#vapes-category", vapesId);
     displayItems("#cbd-category", cbdId);
     displayItems("#papers-category", papersId);
+    displayItems("#glassware-category", glasswareId);
+    displayItems("#hookah-category", hookahId);
   } catch (error) {
     console.error("Failed to intialize the application:", error);
   }
