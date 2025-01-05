@@ -109,6 +109,21 @@
         </div>
         <button class="scroll-button right"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
     </div>
+    <div class="page-separator">
+        <span>Our Store</span>
+    </div>
+    <section class="store-section">
+    <div class="store-info">
+        <h3>Visit Our Store</h3>
+        <p><strong>Address:</strong> 123 Main Street, Your City, Your State</p>
+        <p><strong>Phone:</strong> (123) 456-7890</p>
+        <p><strong>Hours:</strong> Mon-Sat: 10 AM - 8 PM, Sun: 12 PM - 6 PM</p>
+        <p><strong>Email:</strong> support@store.com</p>
+    </div>
+    <div class="google-maps" id="google-map"></div>
+    </section>
+
+
     <div id="product-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -122,6 +137,10 @@
     <script src="js/sidebar.js" defer></script>
     <script src="js/category_lists.js" defer></script>
     <script src="js/items.js" defer></script>
+    <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-_-SyGF7VU-bTBU87av03a3zKYAJQoTs&callback=initMap" async defer>
+    </script>
+    <script src="js/google_maps.js" defer></script>
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
         const navbarAdminLink = document.getElementById('navbar-admin-link');
